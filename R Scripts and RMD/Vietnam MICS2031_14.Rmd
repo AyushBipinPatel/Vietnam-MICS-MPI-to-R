@@ -24,7 +24,7 @@ library(tidyverse)
 library(janitor)
 library(haven)
 library(gt)
-library(lubridate)
+library(readr)
 ```
 
 ## Building a Well-Being Index from Vietnam MICS 2013-14
@@ -105,12 +105,44 @@ bh_dat <- bh_dat %>%
 
 Creating grouped variables.
 
+Notice that I need not write equivalent R code for the following STATA code chunks:
+
+
+1> _This has been included in the grouped condition for the variable_
+
+replace tot_child18_died_5y=. if child18_died==1 & ydead_survey==. //Replace as '.' if there is no information on when the child died  
+
+2> _This need not be written as the structure of data is different, only one rwo exists per ind_id_ __NOte that due to this feature there is no need to create "child18u_died_per_wom_5y" as it is same as "tot_child18_died_5y"__
+
+bysort ind_id: egen childu18_died_per_wom_5y = max(tot_child18_died_5y) 
+lab var childu18_died_per_wom_5y "Total child under 18 death for each women in the last 5 years (birth recode)"
+
+3> _This need not be written as the structure of data is different, only one rwo exists per ind_id_
+
+//Keep one observation per women 
+bysort ind_id: gen id=1 if _n==1 keep if id==1 drop id duplicates report ind_id
+
 ```{r bh_newvars_grouped}
 bh_dat %>% 
   group_by(ind_id) %>% 
   summarise(
     tot_child_died = sum(child_died == "child is dead", na.rm = T),
-    tot_child18_died_5y = 
-  )
+    tot_child18_died_5y = sum(
+      child18_died[ydead_survey <= 5 & !is.na(ydead_survey)] == "child is dead", na.rm = T),
+    women_BH = 1
+) %>% 
+  mutate(
+    tot_child18_died_5y = ifelse(
+      (is.na(tot_child18_died_5y) & tot_child_died>=0 & !is.na(tot_child_died)),0,tot_child18_died_5y)
+  )-> grouped_bh_dat
 ```
+
+Writing new files.
+
+```{r write}
+write_csv(bh_dat, here("output data files","1.2Intermediate_VNM14_BH.csv"))
+write_csv(grouped_bh_dat,here("output data files","1.2VNM14_BH.csv")) # same as VNM14_BH.dta
+```
+
+
 
