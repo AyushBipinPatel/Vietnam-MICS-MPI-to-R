@@ -1,0 +1,86 @@
+---
+title: "Vietnam MICS 2013-14 (Well Being Index)"
+author: "Ayush Patel"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    number_sections: yes
+    toc: yes
+---
+
+## Introduction
+
+This HTML notebook will replicate the STATA do file named __vnm_mics14_dp2019 for distribution__ in R. The goal is to create an R script that does what the said do file does.
+
+I will follow the same section numbering as in the do file for ease of comparision.
+
+## Libraries
+
+Before we go into the excercise, following are the packages from which we will use various functions.
+
+```{r Libraries}
+library(here)
+library(tidyverse)
+library(janitor)
+library(haven)
+library(gt)
+library(lubridate)
+```
+
+## Building a Well-Being Index from Vietnam MICS 2013-14
+
+The memory and environment clearing commands and the commands for setting working folders and paths are not needed if one is working in Project mode through RStudio and uses the {here} (read as package here). This is a library for managing paths and directories.
+
+## Vietnam MICS 2014
+
+### Step 1: Data Preparation
+
+__ Selecting main variables from CH, WM, HH & MN recode & merging with HL recode __
+
+It should be noted that anthropometric data was not collected for children under 5 as part of the Viet Nam MICS 2014 dataset. Previously, nutrition data was collected as part of Viet Nam MICS 2011. However, the data was not collected in this round due to time and resource constraints as well as the availability of national nutrition survey data (p.61)
+
+_Above comments are copied from the STATA do file_
+
+#### Step 1.1: CH - Children's Recode (Under 5)
+
+According to the STATA do file there is no data for this section.
+
+#### Step 1.2: BH - Birth Recode (All females 15-49 years who ever gave birth)
+
+The purpose of step 1.2 is to identify children of any age who died in the last 5 years prior to the survey date. _As seen in the STATA file_
+
+Loading the data from bh.sav.
+
+```{r load_bh}
+bh_dat <- read_sav(file = here("Viet Nam_MICS5_Datasets",
+                     "Viet Nam MICS 2013-14 SPSS Datasets",
+                     "bh.sav"))
+
+bh_dat <- clean_names(bh_dat)
+```
+
+The above code chunk loads the bh.sav and names it bh_dat(a data object). The clean names function gets all the variable names in lower snake case. IN case if anyone is wondering what are all the possible cases, please refere to the wonderful art by Allison Horst shown below.
+
+![Various Cases (Let me know your favourite)](coding_cases.png)
+
+Now let us take a glimplse at the data and names of the variables.
+
+```{r varnames}
+names(bh_dat)
+```
+
+```{r peek}
+head(bh_dat) %>% gt()
+```
+
+Now let us create variables.
+
+```{r bh_newvars}
+bh_dat %>% 
+  mutate(
+    ind_id = structure(((hh1*100000)+(hh2*100)+ln),
+                       label = "Individual ID"),
+     
+  ) %>% view()
+```
+
