@@ -73,14 +73,44 @@ names(bh_dat)
 head(bh_dat) %>% gt()
 ```
 
-Now let us create variables.
+Now let us create variables, only those that are non grouped, i.e. thhose generated without using _bysort_. In R one can create grouped varibales in a different manner. Will show that in the code chunk following this one.
 
 ```{r bh_newvars}
-bh_dat %>% 
+bh_dat <- bh_dat %>% 
   mutate(
     ind_id = structure(((hh1*100000)+(hh2*100)+ln),
                        label = "Individual ID"),
-     
-  ) %>% view()
+    date_death = structure(bh4c + bh9c, 
+                           label = "Date of Death CMC"),
+    mdead_survey = structure(ifelse(((bh9c == 0 |is.na(bh9c)) & bh5 == 1),
+                                     NA, 
+                                     wdoi - date_death), 
+                             label = "Months Dead from Survey"),
+    ydead_survey = structure(mdead_survey/12, 
+                             label = "Years dead from Survey"),
+    age_death = structure(ifelse(bh5 == 2, bh9c, NA),
+                          label = "Age at death in Months"),
+    child_died = structure(forcats::as_factor(
+      ifelse(is.na(bh5),NA,
+             ifelse(bh5==1,"child is alive","child is dead")))),
+    child18_died = forcats::as_factor(
+      ifelse((!is.na(age_death) & age_death > 216),
+             ifelse(is.na(bh5),NA,
+                    ifelse(bh5==1,
+                           "child is alive",
+                           "child is dead")), 
+             "child is alive"))
+    )
+```
+
+Creating grouped variables.
+
+```{r bh_newvars_grouped}
+bh_dat %>% 
+  group_by(ind_id) %>% 
+  summarise(
+    tot_child_died = sum(child_died == "child is dead", na.rm = T),
+    tot_child18_died_5y = 
+  )
 ```
 
