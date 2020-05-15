@@ -227,3 +227,9 @@ wm_dat <- wm_dat%>%
          ind_id, women_wm, dplyr::ends_with("_wom"))
 ```
 
+Writing the tables in csv.
+
+```{r write_wm}
+write_csv(wm_dat,here("output data files","1.3VNM14_WM.csv"))
+```
+
