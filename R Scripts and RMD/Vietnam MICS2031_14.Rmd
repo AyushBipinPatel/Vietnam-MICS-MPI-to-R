@@ -105,6 +105,27 @@ bh_dat <- bh_dat %>%
     )
 ```
 
+Creating Tables for new variables check.
+
+```{r table age_death}
+bh_dat %>% 
+  tabyl(age_death,show_na = TRUE) %>% 
+  gt()
+```
+
+
+```{r bh5 child_died}
+bh_dat %>% 
+  tabyl(bh5, child_died, show_na = T) %>% 
+  gt()
+```
+
+```{r tab child18_died}
+bh_dat %>% 
+  tabyl(child18_died, show_na = T) %>% 
+  gt()
+```
+
 Creating grouped variables.
 
 Notice that I need not write equivalent R code for the following STATA code chunks:
@@ -137,6 +158,14 @@ bh_dat %>%
     tot_child18_died_5y = ifelse(
       (is.na(tot_child18_died_5y) & tot_child_died>=0 & !is.na(tot_child_died)),0,tot_child18_died_5y)
   )-> grouped_bh_dat
+```
+
+
+Creating variables for new grouped variables
+
+```{r tot_child_died tot_chil18_died_5y}
+grouped_bh_dat %>% 
+  tabyl(tot_child_died, tot_child18_died_5y, show_na = T)
 ```
 
 Writing new files.
@@ -193,7 +222,8 @@ This means all Individual Ids are unique, i.e., every row represents a unique in
 
 ```{r cm1_cm8, warning=FALSE}
 wm_dat %>% 
-  tabyl(cm1, cm8,show_na = TRUE)
+  tabyl(cm1, cm8,show_na = TRUE) %>% 
+  gt()
 ```
 
 ```{r mstat_ma6}
@@ -202,23 +232,27 @@ head(wm_dat[,c("mstatus","ma6")],10)
 
 ```{r tab_mstat_ma6, warning=FALSE}
 wm_dat %>% 
-  tabyl(mstatus, ma6,show_na = TRUE)
+  tabyl(mstatus, ma6,show_na = TRUE) %>% 
+  gt()
 
 ```
 
 ```{r marital_miss_tab}
 wm_dat %>% 
-  tabyl(marital_wom, show_na = TRUE)
+  tabyl(marital_wom, show_na = TRUE) %>% 
+  gt()
 ```
 
 ```{r ma6_marital, warning=FALSE}
 wm_dat %>% 
-  tabyl(ma6, marital_wom, show_na = TRUE)
+  tabyl(ma6, marital_wom, show_na = TRUE) %>% 
+  gt()
 ```
 
 ```{r mstatus_marital, warning=FALSE}
 wm_dat %>% 
-  tabyl(mstatus, marital_wom, show_na = TRUE)
+  tabyl(mstatus, marital_wom, show_na = TRUE) %>% 
+  gt()
 ```
 
 Keeping relevant columns.
@@ -266,7 +300,76 @@ write data in csv.
 write_csv(hh_dat,here("output data files","1.5VNM14_HH.csv"))
 ```
 
+### step 1.6: HL - Household Member
 
-     
-    
+Load data.
+
+```{r hl_load}
+hl_dat <- read_sav(file = here("Viet Nam_MICS5_Datasets",
+                     "Viet Nam MICS 2013-14 SPSS Datasets",
+                     "hl.sav"))
+
+hl_dat <- clean_names(hl_dat)
+```
+
+Creating new variables.
+
+```{r hl_newvars}
+hl_dat %>% 
+  mutate(
+    hh_id = structure(
+      (hh1*100) + hh2,
+      label = "Household ID"
+    ),
+    ind_id = structure(
+      (hh1 * 100000) + (hh2 * 100) + hl1,
+      label  = "Individual ID"
+    )
+  ) -> hl_dat
+```
+
+### Step 1.7: Data Merging
+
+Unlike the STATA code the merging here will look a little different. It will be in a single flow. However, checks will be shown prior to mrunnig the merge command.
+
+```{r merge_hl7 check, warning=FALSE}
+hl_dat %>% 
+  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
+  tabyl(hl7, show_na = T)
+```
+
+```{r wm temp check, warning=FALSE}
+hl_dat %>% 
+  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
+  mutate(temp = hl7 > 0) %>% 
+  tabyl(women_wm, temp, show_na = T)
+```
+
+```{r wm7 check, warning=FALSE}
+hl_dat %>% 
+  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
+  mutate(temp = hl7 > 0) %>% 
+  filter((temp == 1 & is.na(women_wm))) %>% 
+  tabyl(wm7, show_na = T)
+```
+
+```{r hhdat merge ,warning=FALSE}
+hl_dat %>% 
+  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
+  left_join(hh_dat, by = c("hh_id" = "hh_id")) %>% 
+  filter(hh9 ==1) %>% # keeping only households that completed interview
+  mutate(
+    marital_men = structure(NA, label = "Marital Status of household member")
+  ) -> merged_dat
+```
+
+Writing this object for safe keeping.
+
+```{r write_mereged data}
+write_csv(merged_dat,here("output data files","1.7VNM14_merged.csv"))
+```
 
