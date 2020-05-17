@@ -570,3 +570,156 @@ merged_dat %>%
 ```
 
 ### Step 1.9: Renaming Demographic Variables
+
+
+```{r step 1.9 new vars tab check hhsize}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible"),
+    no_adults_eligible = structure(NA, 
+                                label = "Household has no eligible women and men"),
+    no_child_fem_eligible = structure(NA, 
+                                label = "Household has no children or women eligible"),
+    no_eligibles = structure(NA, 
+                                label = "Household has no eligible women, men or children"),
+    no_hem_eligible = structure(NA, label = "Household has no eligible individuals for hemoglobin measurement")
+  ) %>% 
+  select(-c("fem_eligible", "hh_n_fem_eligible")) %>% 
+  mutate(
+    weight = structure(hhweight.x, label = "Sample Weight"), # Sample Weight
+    area = structure(ifelse(hh6.x == 2,0,hh6.x),
+                     label = "Area: urban-rural",
+                     labels = c("rural","urban")), #Area: urban or rural||factors in
+                                                   #R start with 1, to maintain                                                        #consistency with stata code                                                        #creating these integers as                                                         #numerics with levels
+    sex = structure(hl4,label = "Sex of Household member"), # Sex oh HH member
+    age = structure(ifelse(hl6>=98,NA,hl6),
+                    label = "Age of household member"), #Age of HH member
+    agec7 = 
+      structure(
+        factor(
+          case_when(
+            age >= 0 & age <= 4 ~ "0-4",
+            age >= 5 & age <= 9 ~ "5-9",
+            age >= 10 & age <= 14 ~ "10-14",
+            age >= 15 & age <= 17 ~ "15-17",
+            age >= 18 & age <= 59 ~ "18-59",
+            age >= 60 ~ "60+"
+          ), levels = c("0-4","5-9","10-14","15-17","18-59","60+")
+        ), label = "Age groups (7groups)"
+      ), # Age group
+    agec4 =
+      structure(
+        factor(
+          case_when(
+            age >= 0 & age <= 9 ~ "0-9",
+            age >= 10 & age <= 17 ~ "10-17",
+            age >= 18 & age <= 58 ~ "18-59",
+            age >= 60 ~ "60+"
+          ), levels = c("0-9","10-17","18-59","60+")
+        ), label = "Age groups (4groups)"
+      ), # Age group
+    member = 1
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hhsize = structure(sum(member), label = "Household size")
+  ) %>% 
+  ungroup() %>% 
+  tabyl(hhsize, show_na = T) %>% 
+  gt()
+
+```
+
+Note that for varible agec7, there are only 6 groups but the label in STATA code says 7 groups. Following the STATA code.
+
+```{r drop member step1.9}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible"),
+    no_adults_eligible = structure(NA, 
+                                label = "Household has no eligible women and men"),
+    no_child_fem_eligible = structure(NA, 
+                                label = "Household has no children or women eligible"),
+    no_eligibles = structure(NA, 
+                                label = "Household has no eligible women, men or children"),
+    no_hem_eligible = structure(NA, label = "Household has no eligible individuals for hemoglobin measurement")
+  ) %>% 
+  select(-c("fem_eligible", "hh_n_fem_eligible")) %>% 
+  mutate(
+    weight = structure(hhweight.x, label = "Sample Weight"), # Sample Weight
+    area = structure(ifelse(hh6.x == 2,0,hh6.x),
+                     label = "Area: urban-rural",
+                     labels = c("rural","urban")), #Area: urban or rural||factors in
+                                                   #R start with 1, to maintain                                                        #consistency with stata code                                                        #creating these integers as                                                         #numerics with levels
+    sex = structure(hl4,label = "Sex of Household member"), # Sex oh HH member
+    age = structure(ifelse(hl6>=98,NA,hl6),
+                    label = "Age of household member"), #Age of HH member
+    agec7 = 
+      structure(
+        factor(
+          case_when(
+            age >= 0 & age <= 4 ~ "0-4",
+            age >= 5 & age <= 9 ~ "5-9",
+            age >= 10 & age <= 14 ~ "10-14",
+            age >= 15 & age <= 17 ~ "15-17",
+            age >= 18 & age <= 59 ~ "18-59",
+            age >= 60 ~ "60+"
+          ), levels = c("0-4","5-9","10-14","15-17","18-59","60+")
+        ), label = "Age groups (7groups)"
+      ), # Age group
+    agec4 =
+      structure(
+        factor(
+          case_when(
+            age >= 0 & age <= 9 ~ "0-9",
+            age >= 10 & age <= 17 ~ "10-17",
+            age >= 18 & age <= 58 ~ "18-59",
+            age >= 60 ~ "60+"
+          ), levels = c("0-9","10-17","18-59","60+")
+        ), label = "Age groups (4groups)"
+      ), # Age group
+    member = 1
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hhsize = structure(sum(member), label = "Household size")
+  ) %>% 
+  ungroup() %>% 
+  select(-c("member"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
