@@ -373,3 +373,200 @@ Writing this object for safe keeping.
 write_csv(merged_dat,here("output data files","1.7VNM14_merged.csv"))
 ```
 
+### Step 1.8: Control Variables
+
+Comments from the STATA code:
+
+_Households are identified as having 'no eligible' members if there are no applicable population, that is, children 0-5 years, adult women 15-49 years or adult men. These households will not have information on relevant indicators of health. As such, these households are considered as non-deprived in those relevant indicators._
+
+As one must have noticed from previous sections, I prefer not to gererate variables that are grouped _in the same data frame_. However, in the following sections I will follow as the code in STATA do file. This is because the code seems to mutate the same data frame starting from section __Step 1.6__.
+
+Having said this, I should explain why I am averse to this practice. Consider the following example.
+
+```{r example averse group}
+tibble::tibble(
+  a = c(1,2,3,4,5,6),
+  b= rep(letters[1:3],2)
+) -> data_example ## data for illustration
+
+data_example
+```
+
+Say, we want sum of column a for each type of observation in column b. We shall name this new variable c.
+
+```{r ex mutate}
+data_example %>% 
+  group_by(b) %>% 
+  mutate(
+    c = sum(a)
+  )
+  
+```
+
+Above is the output we would generate if we wanted a sum of 'a' grouped by 'b'. This might end up being misleading to someone who has neve seen the code but want to use the data. Some might do a simple average of cloumn c or try other summary statistics over this new column. 
+
+Moving on.
+
+#### No Eligible Women 15-49 years
+
+```{r no eligble women1}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women")
+  ) %>% 
+  tabyl(no_fem_eligible, show_na = T) %>% 
+  gt()
+```
+
+#### No Men Eligible
+
+```{r no men eligible}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man")
+  ) %>% 
+  tabyl(no_male_eligible, show_na = T) %>% 
+  gt()
+```
+
+#### NO Eligible Children 0-5 years
+
+```{r no eligible children}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible")
+  ) %>% 
+  tabyl(no_child_eligible) %>% 
+  gt()
+```
+
+#### No Eligible Women and Men
+
+```{r no eligible women and men}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible"),
+    no_adults_eligible = structure(NA, 
+                                  label = "Household has no eligible women and men")
+  ) %>% 
+  tabyl(no_adults_eligible, show_na = T) %>% 
+  gt()
+```
+
+#### NO Eligible Children and Women
+
+```{r no eligible child and women}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible"),
+    no_adults_eligible = structure(NA, 
+                                label = "Household has no eligible women and men"),
+    no_child_fem_eligible = structure(NA, 
+                                label = "Household has no children or women eligible")
+  ) %>% 
+  tabyl(no_child_fem_eligible, show_na = T) %>% 
+  gt()
+```
+
+#### No Eligible Women, Men or Children
+
+```{r no eligibles}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible"),
+    no_adults_eligible = structure(NA, 
+                                label = "Household has no eligible women and men"),
+    no_child_fem_eligible = structure(NA, 
+                                label = "Household has no children or women eligible"),
+    no_eligibles = structure(NA, 
+                                label = "Household has no eligible women, men or children")
+  ) %>% 
+  tabyl(no_eligibles, show_na = T) %>% 
+  gt()
+```
+
+#### No Eligible Subsample
+
+```{r no eligible subsample}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible"),
+    no_adults_eligible = structure(NA, 
+                                label = "Household has no eligible women and men"),
+    no_child_fem_eligible = structure(NA, 
+                                label = "Household has no children or women eligible"),
+    no_eligibles = structure(NA, 
+                                label = "Household has no eligible women, men or children"),
+    no_hem_eligible = structure(NA, label = "Household has no eligible individuals for hemoglobin measurement")
+  ) %>% 
+  select(-c("fem_eligible", "hh_n_fem_eligible"))
+```
+
+### Step 1.9: Renaming Demographic Variables
