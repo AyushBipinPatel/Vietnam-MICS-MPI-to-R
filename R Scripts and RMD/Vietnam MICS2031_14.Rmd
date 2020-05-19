@@ -75,7 +75,11 @@ names(bh_dat)
 head(bh_dat) %>% gt()
 ```
 
-Now let us create variables, only those that are non grouped, i.e. thhose generated without using _bysort_. In R one can create grouped varibales in a different manner. Will show that in the code chunk following this one.
+Now let us create variables, only those that are non grouped, i.e. those generated without using _bysort_. In R one can create grouped varibales in a different manner. Will show that in the code chunk following this one.
+
+Before moving forward, please note that, a large part of coding involved in creating this index is a data wrangling process. The tidyverse way of carrying out data wrangling extensively employs {dplyr} (read as 'package dplyr') and its mutate function. Here is a visual cue (created by Allison Horst) to what the mutate function does.
+
+![Wrangling and adding columns](dplyr_mutate.png)
 
 ```{r bh_newvars}
 bh_dat <- bh_dat %>% 
@@ -642,7 +646,7 @@ merged_dat %>%
 
 Note that for varible agec7, there are only 6 groups but the label in STATA code says 7 groups. Following the STATA code.
 
-```{r drop member step1.9}
+```{r drop member step1.9, warning=FALSE}
 merged_dat %>% 
   mutate(
     fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
@@ -705,17 +709,141 @@ merged_dat %>%
     hhsize = structure(sum(member), label = "Household size")
   ) %>% 
   ungroup() %>% 
-  select(-c("member"))
+  select(-c("member")) %>% 
+  mutate(
+    region = structure(forcats::fct_relevel(
+      fct_recode(as_factor(hh7.x),
+                 "North Central & Central Coastal Area" = 
+                   "North Central and Central Coastal area",
+                 "Northern Midlands & Mountain Area" = 
+                   "Northern Midlands and Mountain area"), 
+                                  c("Central Highlands",
+                                    "Mekong River Delta",
+                                    "North Central & Central Coastal Area",
+                                    "Northern Midlands & Mountain Area",
+                                    "Red River Delta",
+                                    "South East")), 
+                       label = "Region for Subnational Decomposition")
+  ) %>% 
+  tabyl(hh7.x, region) %>% 
+  gt()
+
 ```
 
+Notice how leveling of factors is significantly different in R. The {Forcats} is a very useful tool.
 
+## Step 2: Data preparation
 
+Standardization of the 10 Global MPI Indicatiors. 
 
+Identification if non-deprived and deprived individuals.
 
+### Step 2.1 Years of Schooling
 
+Comments from the STATA Code:
 
+_Note: In Viet Nam, children enter primary school aged 6 years, enter lower secondary school at 11 and upper secondary school at 15. There are grades in primary school (Grades 1 to 5), four in lower secondary school (Grades 6 to 9) and three in upper secondary school (Grades 10 to 12).(pg 192 report)_
 
+Let us first save the data frame created in the environment. This way we reduce the length of the code and copy pasting it again and again.
 
+```{r save merge}
+merged_dat %>% 
+  mutate(
+    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_n_fem_eligible = sum(fem_eligible, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_fem_eligible = structure(hh_n_fem_eligible == 0, label = "Household has no eligible women"),
+    no_male_eligible = structure(NA, label = "Household has no eligible man"),
+    no_child_eligible = structure(NA, label = "Household has no children eligible"),
+    no_adults_eligible = structure(NA, 
+                                label = "Household has no eligible women and men"),
+    no_child_fem_eligible = structure(NA, 
+                                label = "Household has no children or women eligible"),
+    no_eligibles = structure(NA, 
+                                label = "Household has no eligible women, men or children"),
+    no_hem_eligible = structure(NA, label = "Household has no eligible individuals for hemoglobin measurement")
+  ) %>% 
+  select(-c("fem_eligible", "hh_n_fem_eligible")) %>% 
+  mutate(
+    weight = structure(hhweight.x, label = "Sample Weight"), # Sample Weight
+    area = structure(ifelse(hh6.x == 2,0,hh6.x),
+                     label = "Area: urban-rural",
+                     labels = c("rural","urban")), #Area: urban or rural||factors in
+                                                   #R start with 1, to maintain                                                        #consistency with stata code                                                        #creating these integers as                                                         #numerics with levels
+    sex = structure(hl4,label = "Sex of Household member"), # Sex oh HH member
+    age = structure(ifelse(hl6>=98,NA,hl6),
+                    label = "Age of household member"), #Age of HH member
+    agec7 = 
+      structure(
+        factor(
+          case_when(
+            age >= 0 & age <= 4 ~ "0-4",
+            age >= 5 & age <= 9 ~ "5-9",
+            age >= 10 & age <= 14 ~ "10-14",
+            age >= 15 & age <= 17 ~ "15-17",
+            age >= 18 & age <= 59 ~ "18-59",
+            age >= 60 ~ "60+"
+          ), levels = c("0-4","5-9","10-14","15-17","18-59","60+")
+        ), label = "Age groups (7groups)"
+      ), # Age group
+    agec4 =
+      structure(
+        factor(
+          case_when(
+            age >= 0 & age <= 9 ~ "0-9",
+            age >= 10 & age <= 17 ~ "10-17",
+            age >= 18 & age <= 58 ~ "18-59",
+            age >= 60 ~ "60+"
+          ), levels = c("0-9","10-17","18-59","60+")
+        ), label = "Age groups (4groups)"
+      ), # Age group
+    member = 1
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hhsize = structure(sum(member), label = "Household size")
+  ) %>% 
+  ungroup() %>% 
+  select(-c("member")) %>% 
+  mutate(
+    region = structure(forcats::fct_relevel(
+      fct_recode(as_factor(hh7.x),
+                 "North Central & Central Coastal Area" = 
+                   "North Central and Central Coastal area",
+                 "Northern Midlands & Mountain Area" = 
+                   "Northern Midlands and Mountain area"), 
+                                  c("Central Highlands",
+                                    "Mekong River Delta",
+                                    "North Central & Central Coastal Area",
+                                    "Northern Midlands & Mountain Area",
+                                    "Red River Delta",
+                                    "South East")), 
+                       label = "Region for Subnational Decomposition")
+  ) -> merged_dat
+
+```
+
+Table ed4b ed4a 
+
+```{r tab ed4b ed4a}
+merged_dat %>% 
+  tabyl(ed4b, ed4a, show_na = T) %>% 
+  kableExtra::kable()
+```
+
+Table age ed6a when ed5 is 1
+
+```{r tab age ed6a}
+merged_dat %>% 
+  filter(ed5 == 1) %>% 
+  tabyl(age, ed6a, show_na = T) %>% 
+  kableExtra::kable()
+```
 
 
 
