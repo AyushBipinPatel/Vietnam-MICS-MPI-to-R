@@ -27,6 +27,7 @@ library(janitor)
 library(haven)
 library(gt)
 library(readr)
+library(magrittr)
 ```
 
 # Building a Well-Being Index from Vietnam MICS 2013-14
@@ -845,9 +846,99 @@ merged_dat %>%
   kableExtra::kable()
 ```
 
+Creating edulevel and table ed4a, ed3
 
+```{r edulevel mutate}
+merged_dat %>% 
+  mutate(
+    edulevel = ifelse(ed4a >= 8, NA, ed4a),
+    edulevel = ifelse((is.na(ed3) | ed3 == 2),0,edulevel)
+  ) %>% 
+  tabyl(ed4a, ed3, show_na = T) %>% 
+  gt() 
+```
 
+Creating eduhighyear and table ed4b, ed43
 
+```{r eduhihgyear mutate}
+merged_dat %>% 
+  mutate(
+    edulevel = ifelse(ed4a >= 8, NA, ed4a),
+    edulevel = ifelse((is.na(ed3) | ed3 == 2),0,edulevel),
+    eduhighyear = ifelse((is.na(ed4b)|ed4b == 97| ed4b == 98| ed4b == 99),
+                         NA, ed4b),
+    eduhighyear = ifelse((is.na(ed3) | ed3 == 2),0,eduhighyear)
+  ) %>% 
+  tabyl(ed4b, ed3, show_na = T) %>% 
+  gt()
+```
 
+Now, I feel it is as good a time as any, since we have moved this forward in to mutating new variables, to introduce the {magrittr} pipes. Up till now in the document you must have seen %>% appear everywhere. This is a pipe operator. What it does is to allow us to write code where the format is similar to f(g(y(x))), where f,g, and y are function, and x is input for y and y(x) is input of g and so on.
+
+One must have noticed that if I am mutating multiple varibables of a data frame I ahve to reassign the mutated data frame with -> or <- operator. This can be redundant at times. Consider the following example.
+
+```{r example pipe}
+tibble(
+  a = c(1,2,3,4),
+  b = c(11,22,11,11)
+) -> ex_pipe
+```
+
+let us say I want a new variable c = a*b in the same data frame ex_pipe and keep rows where b is 11. Below is code to do it with using pipe operator.
+
+```{r expipe1}
+ex_pipe %>% 
+  mutate(
+    c= a * b # creating new variable
+  ) %>%  # using pipe to feed the output of mutate in to filter function
+  filter(
+    b == 11
+  ) -> ex_pipe # updating the ex_pipe object/ data frame by reassigning.
+
+ex_pipe
+```
+
+I might not want to use -> operator as it can get redundant. There is a cousin of the %>%  operator that helps us tackle this problem. For instance, say i want ot add 1 to c in each row and update the data prame ex_pipe.
+
+```{r expipe2}
+ex_pipe %<>% ## Notice the difference
+  mutate(
+    c = c+1
+  ) ##notice no need for arrow opration and reassignment 
+
+ex_pipe
+```
+
+We will be using %<>% where necessary.
+
+Ok. Back on track now.
+
+updating merged_dat.
+
+```{r update mutate}
+merged_dat %<>% 
+  mutate(
+    edulevel = ifelse(ed4a >= 8, NA, ed4a),
+    edulevel = ifelse((is.na(ed3) | ed3 == 2),0,edulevel),
+    eduhighyear = ifelse((is.na(ed4b)|ed4b == 97| ed4b == 98| ed4b == 99),
+                         NA, ed4b),
+    eduhighyear = structure(ifelse((is.na(ed3) | ed3 == 2),0,eduhighyear), 
+                            label = "HIghest year of education completed")
+  ) 
+```
+
+Table eduhighyear
+
+```{r tab eduhighyear}
+merged_dat %>% 
+  tabyl(eduhighyear, show_na = T) %>% 
+  gt()
+```
+
+Cleaning inconsistencies.
+
+```{r}
+
+```
 
 
