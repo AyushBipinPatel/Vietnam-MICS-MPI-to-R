@@ -739,7 +739,7 @@ Standardization of the 10 Global MPI Indicatiors.
 
 Identification if non-deprived and deprived individuals.
 
-### Step 2.1 Years of Schooling
+### Step 2.1: Years of Schooling
 
 Comments from the STATA Code:
 
@@ -937,8 +937,137 @@ merged_dat %>%
 
 Cleaning inconsistencies.
 
-```{r}
+```{r clean inconsistencies}
+merged_dat %<>%
+  mutate(
+    eduhighyear = ifelse(age < 10, 0, eduhighyear ),
+    eduhighyear = ifelse((edulevel == 1 & eduhighyear > 5), NA, eduhighyear ),
+    eduhighyear = ifelse((edulevel == 2 & eduhighyear > 9), NA, eduhighyear ),
+    eduhighyear = ifelse((edulevel == 3 & eduhighyear > 12), NA, eduhighyear ),
+    eduhighyear = ifelse(edulevel == 0, 0, eduhighyear ),
+  )
 
 ```
 
+Creating Years of schooling.
+
+```{r mutate years of schooling}
+merged_dat %<>%
+  mutate(
+    eduyears = ifelse((edulevel == 1 & is.na(eduhighyear)),0, eduhighyear),
+    eduyears = ifelse((edulevel == 2 & (is.na(eduhighyear)|eduhighyear ==0)),
+                      5,eduyears),
+    eduyears = ifelse((edulevel == 3 & (is.na(eduhighyear)|eduhighyear ==0)),
+                      9,eduyears),
+    eduyears = ifelse((edulevel == 4 & (is.na(eduhighyear)|eduhighyear ==0)),
+                      12,eduyears), # the equivalent STATA code fot this is written twice in the do file.
+    eduyears = ifelse(((edulevel == 4 | edulevel ==5) &
+                         (is.na(eduhighyear)|eduhighyear ==0)),
+                      13,eduyears),
+    eduyears = ifelse(edulevel == 0 ,0, eduyears),
+    eduyears = ifelse(is.na(edulevel) ,NA, eduyears),
+  )
+
+```
+
+Checking for further inconsistencies.
+
+```{r further inconsistencies}
+merged_dat %<>%
+  mutate(
+    eduyears = ifelse((age <= eduyears & age > 0), NA, eduyears),
+    eduyears = structure(ifelse(age < 10, 0, eduyears),
+                         label = "Total number of years of education acomplished")
+  )
+
+# Table eduyears edulevel
+
+merged_dat %>% 
+  tabyl(eduyears, edulevel, show_na = T) %>% 
+  kableExtra::kable()
+
+```
+
+Table ed4b age
+
+```{r tab ed4b age}
+merged_dat %>% 
+  filter((eduyears == 0 & edulevel >= 2)) %>% 
+  tabyl(ed4b, age, show_na = T) %>% 
+  gt()
+```
+
+Creating Control variables regarding information on years of education.
+
+```{r con var edu info}
+merged_dat %<>%
+  mutate(
+    temp = ifelse((!is.na(eduyears) & age >= 10 & !is.na(age)), 1, NA)
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    no_missing_edu = sum(temp, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    temp2 = ifelse((age >= 10 & !is.na(age)),1,NA)
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hhs = sum(temp2, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_missing_edu = no_missing_edu/hhs,
+    no_missing_edu = structure(no_missing_edu >= (2/3), 
+                               label = "No missing edu for at least 2/3 of the HH members aged 10 years & older")
+  )
+
+# Table for no_missing_edu
+merged_dat %>% 
+  tabyl(no_missing_edu, show_na = T) %>% 
+  gt()
+```
+
+Dropping temp, temp2 and hhs
+
+```{r drop temp temp2 hhs}
+merged_dat %<>%
+  select(-c("temp", "temp2", "hhs"))
+```
+
+#### Standard MPI
+
+Comments from STATA code:
+
+_The entire household is considered deprived if no household member aged 10 years or older has completed SIX years of schooling._
+
+```{r std MPI}
+merged_dat %<>%
+  mutate(
+    years_edu6 = ifelse(is.na(eduyears),NA,(eduyears >= 6)),
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hh_years_edu6_1 = max(years_edu6, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    hh_years_edu6 = (hh_years_edu6_1 == 1),
+    hh_years_edu6 = ifelse(is.na(hh_years_edu6_1), NA, hh_years_edu6),
+    hh_years_edu6 = structure(
+      ifelse((hh_years_edu6 == 0 & no_missing_edu == 0),
+                           NA, hh_years_edu6),
+      label = "Household has at least one member with 6 years of edu")
+    
+  )
+
+# Table hh_years_edu6
+
+merged_dat %>% 
+  tabyl(hh_years_edu6, show_na = T) %>% 
+  gt()
+```
+
+### Step 2.2: Child School Attendance
 
