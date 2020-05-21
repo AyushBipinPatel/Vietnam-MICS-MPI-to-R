@@ -1071,3 +1071,135 @@ merged_dat %>%
 
 ### Step 2.2: Child School Attendance
 
+Creating the attendence variable.
+
+```{r attendance variable}
+merged_dat %<>%
+  mutate(
+    attendance = ifelse(ed5 == 1, 1, NA),
+    attendance = ifelse(ed5 == 2, 0, attendance),
+    attendance = ifelse(ed3 == 2, 0, attendance),
+  )
+
+# Table age ed5
+
+merged_dat %>% 
+  tabyl(age, ed5, show_na = T) %>% 
+  gt()
+
+```
+
+
+```{r attendance continued}
+merged_dat %<>%
+  mutate(
+    attendance = ifelse((age < 5 | age > 24),0,attendance)
+  )
+
+# Table Attendance
+
+merged_dat %>% 
+  tabyl(attendance, show_na = T) %>% 
+  gt()
+
+```
+
+#### Standard MPI
+
+Comments from STATA code:
+
+_The entire household is considered deprived if any school-aged child is not attending school up to class 8._
+
+```{r standard MPI vars}
+merged_dat %<>%
+  mutate(
+    child_schoolage = (age >= 6 & age <= 14)
+  )
+
+# count If child_schoolage ==1 & attendance ==.
+merged_dat %>% 
+  filter(child_schoolage == 1 & is.na(attendance))
+```
+
+```{r further mutate standard MPI}
+merged_dat %<>%
+  mutate(
+    temp = ifelse((child_schoolage == 1 & (!is.na(attendance))), 
+                  1, NA)
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    no_missing_atten = sum(temp, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    temp2 = ifelse(child_schoolage == 1, 1, NA)
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    hhs = sum(temp2, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    no_missing_atten = no_missing_atten/hhs,
+    no_missing_atten = structure((no_missing_atten >= (2/3)),
+                                 label = "No missing school attendance for at least 2/3 of the school aged children")
+  ) %>% 
+  select(-c("temp", "temp2", "hhs"))
+
+# Table no_mossing_atten
+
+merged_dat %>% 
+  tabyl(no_missing_atten, show_na = T) %>% 
+  gt()
+```
+
+__For the above table the comments in STATA code are "tab no_missing_atten, miss //Values for 0 are less than 1% ",  if this is the case then there is some mistake I might have made in the above code chunck.__ 
+
+
+```{r further newvars std mpi}
+merged_dat %<>%
+  group_by(hh_id) %>% 
+  mutate(
+    hh_children_schoolage = sum(child_schoolage, na.rm = TRUE)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    hh_children_schoolage = structure(
+      hh_children_schoolage > 0,
+      label = "Household has children in schoolage"
+    ),
+    child_not_atten = ifelse(child_schoolage == 1, attendance == 0, NA),
+    child_not_atten = ifelse((is.na(attendance) & child_schoolage == 1),
+                             NA, child_not_atten)
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    any_child_not_atten = max(child_not_atten, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    hh_child_atten = (any_child_not_atten == 0),
+    hh_child_atten = ifelse(is.na(any_child_not_atten), 
+                            NA, hh_child_atten),
+    hh_child_atten = ifelse(hh_children_schoolage ==0,
+                            1, hh_child_atten),
+    hh_child_atten = structure(
+      ifelse((hh_child_atten == 1 & no_missing_atten == 0),
+             NA, hh_child_atten),
+      label = "Household has all school age children up to class 8 in school"
+    )
+  )
+
+# Table hh_child_Atten
+merged_dat %>% 
+  tabyl(hh_child_atten, show_na = T) %>% 
+  gt()
+
+```
+
+
+__Section 2.2 needs to be checked before we can move forward.__
+
+
+
