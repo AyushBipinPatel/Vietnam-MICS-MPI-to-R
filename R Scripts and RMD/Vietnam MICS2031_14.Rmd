@@ -1141,7 +1141,8 @@ merged_dat %<>%
   ) %>% 
   ungroup() %>% 
   mutate(
-    no_missing_atten = no_missing_atten/hhs,
+    no_missing_atten = ifelse((no_missing_atten == 0 & hhs == 0),
+                              1,no_missing_atten/hhs), # deviation
     no_missing_atten = structure((no_missing_atten >= (2/3)),
                                  label = "No missing school attendance for at least 2/3 of the school aged children")
   ) %>% 
@@ -1154,10 +1155,10 @@ merged_dat %>%
   gt()
 ```
 
-__For the above table the comments in STATA code are "tab no_missing_atten, miss //Values for 0 are less than 1% ",  if this is the case then there is some mistake I might have made in the above code chunck.__ 
+__Notice there is a deviation from STATA code : replace no_missing_aten = no_missing_atten/hhs. This is because when both variables are 0 NaNs are generated.__ 
 
 
-```{r further newvars std mpi}
+```{r further newvars std mpi, warning=FALSE}
 merged_dat %<>%
   group_by(hh_id) %>% 
   mutate(
@@ -1199,7 +1200,6 @@ merged_dat %>%
 ```
 
 
-__Section 2.2 needs to be checked before we can move forward.__
 
 
 
