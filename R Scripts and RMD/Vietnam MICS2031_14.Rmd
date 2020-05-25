@@ -99,7 +99,14 @@ bh_dat <- bh_dat %>%
                           label = "Age at death in Months"),
     child_died = structure(forcats::as_factor(
       ifelse(is.na(bh5),NA,
-             ifelse(bh5==1,"child is alive","child is dead")))),
+             ifelse(bh5==1,"child is alive","child is dead"))))
+    ) %>% 
+  group_by(ind_id) %>% 
+  mutate(
+    tot_child_died = sum(child_died == "child is dead", na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
     child18_died = forcats::as_factor(
       ifelse((!is.na(age_death) & age_death > 216),
              ifelse(is.na(bh5),NA,
@@ -107,7 +114,45 @@ bh_dat <- bh_dat %>%
                            "child is alive",
                            "child is dead")), 
              "child is alive"))
-    )
+    ) %>% 
+  group_by(ind_id) %>% 
+  mutate(
+    tot_child18_died_5y = sum(
+      child18_died[ydead_survey <= 5 & !is.na(ydead_survey)] == "child is dead", na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    tot_child18_died_5y = ifelse(
+      (is.na(tot_child18_died_5y) & tot_child_died>=0 & !is.na(tot_child_died)),0,tot_child18_died_5y),
+    tot_child18_died_5y = ifelse(
+      child18_died == "child is dead" & is.na(ydead_survey), 
+      NA, tot_child18_died_5y)
+  ) %>% 
+  group_by(ind_id) %>% 
+  mutate(
+    childu18_dies_per_wom_5y = structure(
+      max(tot_child18_died_5y,na.rm = T),
+      label = "Total child under 18 death for each women in the last 5 years (birth recode)")
+  ) %>% 
+  ungroup()
+```
+
+Check if all ind ids are uniuqe
+
+```{r uiique ind_id check}
+nrow(bh_dat) == length(unique(bh_dat$ind_id))
+```
+
+There are duplicate ind_ids. Let us remove duplicates.
+
+```{r remove duplicates}
+bh_dat %>% distinct(ind_id,.keep_all = TRUE) -> bh_dat
+```
+
+Check again if all ind ids are uniuqe
+
+```{r uique2 ind_id check}
+nrow(bh_dat) == length(unique(bh_dat$ind_id))
 ```
 
 Creating Tables for new variables check.
@@ -115,11 +160,11 @@ Creating Tables for new variables check.
 ```{r table age_death}
 bh_dat %>% 
   tabyl(age_death,show_na = TRUE) %>% 
-  gt()
+  gt() 
 ```
 
 
-```{r bh5 child_died}
+```{r bh5 child_died, warning=FALSE}
 bh_dat %>% 
   tabyl(bh5, child_died, show_na = T) %>% 
   gt()
@@ -131,53 +176,17 @@ bh_dat %>%
   gt()
 ```
 
-Creating grouped variables.
-
-Notice that I need not write equivalent R code for the following STATA code chunks:
-
-
-1> _This has been included in the grouped condition for the variable_
-
-replace tot_child18_died_5y=. if child18_died==1 & ydead_survey==. //Replace as '.' if there is no information on when the child died  
-
-2> _This need not be written as the structure of data is different, only one rwo exists per ind_id_ __NOte that due to this feature there is no need to create "child18u_died_per_wom_5y" as it is same as "tot_child18_died_5y"__
-
-bysort ind_id: egen childu18_died_per_wom_5y = max(tot_child18_died_5y) 
-lab var childu18_died_per_wom_5y "Total child under 18 death for each women in the last 5 years (birth recode)"
-
-3> _This need not be written as the structure of data is different, only one rwo exists per ind_id_
-
-//Keep one observation per women 
-bysort ind_id: gen id=1 if _n==1 keep if id==1 drop id duplicates report ind_id
-
-```{r bh_newvars_grouped}
-bh_dat %>% 
-  group_by(ind_id) %>% 
-  summarise(
-    tot_child_died = sum(child_died == "child is dead", na.rm = T),
-    tot_child18_died_5y = sum(
-      child18_died[ydead_survey <= 5 & !is.na(ydead_survey)] == "child is dead", na.rm = T),
-    women_BH = 1
-) %>% 
-  mutate(
-    tot_child18_died_5y = ifelse(
-      (is.na(tot_child18_died_5y) & tot_child_died>=0 & !is.na(tot_child_died)),0,tot_child18_died_5y)
-  )-> grouped_bh_dat
-```
-
-
-Creating variables for new grouped variables
 
 ```{r tot_child_died tot_chil18_died_5y}
-grouped_bh_dat %>% 
+bh_dat %>% 
   tabyl(tot_child_died, tot_child18_died_5y, show_na = T)
 ```
 
 Writing new files.
 
 ```{r write}
-write_csv(bh_dat, here("output data files","1.2Intermediate_VNM14_BH.csv"))
-write_csv(grouped_bh_dat,here("output data files","1.2VNM14_BH.csv")) # same as VNM14_BH.dta
+
+write_csv(bh_dat,here("output data files","1.2VNM14_BH.csv")) # same as VNM14_BH.dta
 ```
 
 ### Step 1.3: WM - Women's Record (All eligible females 15-49 in the household)
@@ -339,14 +348,14 @@ Unlike the STATA code the merging here will look a little different. It will be 
 
 ```{r merge_hl7 check, warning=FALSE}
 hl_dat %>% 
-  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(bh_dat, by = c("ind_id" = "ind_id")) %>% 
   left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
   tabyl(hl7, show_na = T)
 ```
 
 ```{r wm temp check, warning=FALSE}
 hl_dat %>% 
-  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(bh_dat, by = c("ind_id" = "ind_id")) %>% 
   left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
   mutate(temp = hl7 > 0) %>% 
   tabyl(women_wm, temp, show_na = T)
@@ -354,7 +363,7 @@ hl_dat %>%
 
 ```{r wm7 check, warning=FALSE}
 hl_dat %>% 
-  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(bh_dat, by = c("ind_id" = "ind_id")) %>% 
   left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
   mutate(temp = hl7 > 0) %>% 
   filter((temp == 1 & is.na(women_wm))) %>% 
@@ -363,7 +372,7 @@ hl_dat %>%
 
 ```{r hhdat merge ,warning=FALSE}
 hl_dat %>% 
-  left_join(grouped_bh_dat, by = c("ind_id" = "ind_id")) %>% 
+  left_join(bh_dat, by = c("ind_id" = "ind_id")) %>% 
   left_join(wm_dat, by = c("ind_id" = "ind_id")) %>%
   left_join(hh_dat, by = c("hh_id" = "hh_id")) %>% 
   filter(hh9 ==1) %>% # keeping only households that completed interview
@@ -1199,7 +1208,141 @@ merged_dat %>%
 
 ```
 
+### Step 2.3: Nutrition
+
+Comments from STATA code:
+
+_Note: Anthropometric data was not collected for children under 5 as part of the Viet Nam MICS 2014 dataset._
+
+```{r new var nutrition}
+merged_dat %<>%
+  mutate(
+    hh_nutrition_uw_st = NA
+  )
+```
+
+### Step 2.4: Chlid Mortality
+
+```{r new vars child mortality}
+merged_dat %<>% 
+  mutate(
+    temp_f = case_when(
+      is.na(cm9a) & !is.na(cm9b) ~ cm9b,
+      !is.na(cm9a) & is.na(cm9b) ~ cm9a,
+      !is.na(cm9a) & !is.na(cm9b) ~ cm9b + cm9b,
+    ),
+    temp_f = ifelse(
+      (cm1 == 1 & cm8 ==2) | cm1 == 2,
+      0, temp_f
+    ),
+    temp_f = ifelse(no_fem_eligible == 1,0, temp_f)
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    child_mortality_f = structure(
+      ifelse(
+      length(temp_f) == sum(is.na(temp_f)),
+      NA,
+      sum(temp_f, na.rm = T)
+    ), 
+    label = "Occurence of child mortality as reported by women")
+  ) %>% 
+  ungroup() %>% 
+  select(-c("temp_f"))
+
+# Table child_mortality_f
+
+merged_dat %>% 
+  tabyl(child_mortality_f, show_na = T) %>% 
+  gt()
+
+```
 
 
+```{r continued new vars child mortality}
+merged_dat %<>%
+  mutate(
+    child_mortality_m = structure(NA,
+                                  label = "Occurence of child mortality reported by men"),
+    child_mortality = structure(
+      child_mortality_f,
+      label = "Total child mortality reported by men and women")
+  )
 
+# Tabel child mortality
+
+merged_dat %>% 
+  tabyl(child_mortality, show_na = T)
+```
+
+#### Standard MPI
+
+Comments from STATA code:
+
+_The standard MPI indicator takes a value of "0" if women in the household reported mortality among children under 18 in the last 5 years from the survey year. The indicator takes a value of "1" if eligible women within the household reported_ 
+
+_(i) no child mortality or_
+
+_(ii) if any child died longer than 5 years from the survey year or_ 
+
+_(iii) if any child 18 years and older died in the last 5 years. Households were replaced with a value of "1" if eligible men within the household reported no child mortality in the absence of information from women. The indicator takes a missing value if there was missing information on reported death from eligible individuals._
+
+Table for childu18_died_5y.
+
+comments form the STATA code:
+
+_The 'childu18_died_per_wom_5y' variable was constructed in Step 1.2 using information from individual women who ever gave birth in the BH file. The missing values represent eligible woman who have never ever given birth and so are not present in the BR file. But these 'missing women' may be living in households where there are other women with child mortality information from the BH file. So at this stage, it is important that we aggregate the information that was obtained from the BH file at the household level. This ensures that women who were not present in the BH file is assigned with a value, following the information provided by other women in the household._
+
+```{r table childu18_died_per_wom_5y}
+merged_dat %>% 
+  tabyl(childu18_dies_per_wom_5y, show_na = T) %>% 
+  gt()
+```
+
+Assign 0 for wome who gave birth but did not report death
+
+```{r Assign zero}
+merged_dat %<>%
+  mutate(
+    childu18_dies_per_wom_5y = ifelse((cm1 == 1&cm8==2)|cm1 == 2, 
+                                      0,childu18_dies_per_wom_5y)
+  ) %>% 
+  group_by(hh_id) %>% 
+  mutate(
+    childu18_mortality_5y = sum(childu18_dies_per_wom_5y, na.rm = T)
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    childu18_mortality_5y = structure(
+      ifelse((is.na(childu18_mortality_5y) & child_mortality == 0),
+             0, childu18_mortality_5y),
+      label = "Under 18 child mortality within household past 5 years reported by wome"
+    )
+  )
+
+# Tabel
+
+merged_dat %>% 
+  tabyl(childu18_mortality_5y, show_na = T) %>% 
+  gt()
+```
+
+```{r new vars cont}
+merged_dat %<>%
+  mutate(
+    hh_mortality_u18_5y = (childu18_mortality_5y == 0),
+    hh_mortality_u18_5y = structure(
+      ifelse(is.na(childu18_mortality_5y),NA, hh_mortality_u18_5y),
+      label = "Household had no under 18 child mortality 
+in the last 5 years"
+    )
+  )
+
+# tabel hh_mortality_u18_5y
+
+merged_dat %>%  
+  tabyl(hh_mortality_u18_5y, show_na = T) %>% 
+  gt()
+
+```
 
