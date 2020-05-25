@@ -1269,7 +1269,7 @@ merged_dat %<>%
       label = "Total child mortality reported by men and women")
   )
 
-# Tabel child mortality
+# table child mortality
 
 merged_dat %>% 
   tabyl(child_mortality, show_na = T)
@@ -1320,7 +1320,7 @@ merged_dat %<>%
     )
   )
 
-# Tabel
+# table
 
 merged_dat %>% 
   tabyl(childu18_mortality_5y, show_na = T) %>% 
@@ -1338,7 +1338,7 @@ in the last 5 years"
     )
   )
 
-# tabel hh_mortality_u18_5y
+# table hh_mortality_u18_5y
 
 merged_dat %>%  
   tabyl(hh_mortality_u18_5y, show_na = T) %>% 
@@ -1405,14 +1405,67 @@ merged_dat %<>%
     )
   )
 
-# Tabel toilet_mdg
+# table toilet_mdg
 
 merged_dat %>% 
   tabyl(toilet_mdg, show_na = T) %>% 
   gt()
 ```
 
+### Step 2.7: Drinking Water
 
+Comments from the STATA Code:
 
+_Improved drinking water sources include the following: piped water into dwelling, yard or plot; public taps or standpipes; boreholes or tubewells; protected dug wells; protected springs; packaged water; delivered water and rainwater which is located on premises or is less than a 30-minute walk from home roundtrip. Source: https://unstats.un.org/sdgs/metadata/files/Metadata-06-01-01.pdf Note: In cases of mismatch between the country report and the internationally agreed guideline, we followed the report._
 
+```{r drinkinh water new vars}
+merged_dat %<>%
+  mutate(
+    water = ws1,
+    timetowater = ws4,
+    ndwater = ws2
+  )
+
+# table ws2 if water is 91
+
+merged_dat %>% 
+  filter(water == 91) %>% 
+  tabyl(ws2, show_na = T) %>% 
+  gt()
+
+```
+
+comments from STATA code:
+
+_Because the quality of bottled water is not known, households using bottled water for drinking are classified as using an improved or unimproved source according to their water source for non-drinking activities such as cooking and hand washing. However, it is important to note that households using bottled water for drinking are classified as unimproved source if this is explicitly mentioned in the country report._
+
+#### Standard MPI
+
+Comments from STATA code:
+
+_Members of the household are considered deprived if the household does not have access to improved drinking water (according to the SDG guideline) or safe drinking water is at least a 30-minute walk from home, roundtrip_
+
+```{r drinking water Std MPI}
+merged_dat %<>%
+  mutate(
+    water_mdg = ifelse(water  %in% c(11,12,14,21,13,31,41,51,91),1,NA),
+    water_mdg = ifelse(water  %in% c(32,42,81,96),0, water_mdg),
+    water_mdg = ifelse(
+      (water_mdg == 1 & timetowater >= 30 & !is.na(timetowater) &
+                                                     timetowater != 999),
+      0, water_mdg),
+    water_mdg = ifelse(water == 99 | is.na(water), NA, water_mdg),
+    water_mdg = structure(
+      ifelse(water == 91 & (ndwater  %in% c(32,42,81,96)),0,water_mdg),
+      label = "Household has drinking water with MDG standards (considering distance)"
+    )
+    )
+
+# table water_mdg
+merged_dat %>% 
+  tabyl(water_mdg, show_na = T) %>% 
+  gt()
+```
+
+### Step 2.8: Housing
 
