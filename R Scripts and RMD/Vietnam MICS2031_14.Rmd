@@ -1346,3 +1346,73 @@ merged_dat %>%
 
 ```
 
+### Step 2.5: Electricity
+
+Comments from STATA:
+
+_Members of the household are considered deprived if the household has no electricity_
+
+```{r electricity}
+merged_dat %<>%
+  mutate(
+    electricity = hc8a,
+    electricity = ifelse(electricity == 2,0,electricity),
+    electricity = structure(
+      ifelse(electricity == 9,NA,electricity),
+      label = "HOusehold has electricity")
+  )
+```
+
+### Step 2.6: Sanitation
+
+Comments from STATA Code:
+
+_Improved sanitation facilities include flush or pour flush toilets to sewer systems, septic tanks or pit latrines, ventilated improved pit latrines, pit latrines with a slab, and composting toilets. These facilities are only considered improved if it is private, that is, it is not shared with other households. Source: https://unstats.un.org/sdgs/metadata/files/Metadata-06-02-01.pdf Note: In cases of mismatch between the country report and the internationally agreed guideline, we followed the report._
+
+Creating new variables
+
+```{r sanitation new vars}
+merged_dat %<>%
+  mutate(
+    toilet = ws8,
+    shared_toilet = ws9,
+    shared_toilet = structure(
+      ifelse(shared_toilet == 2,0,shared_toilet),
+      labels = c("Yes" =1, "No" =0)
+    ),
+    shared_toilet = structure(
+      ifelse(shared_toilet ==3, NA, shared_toilet),
+      labels = c("Yes" =1, "No" =0))
+  )
+```
+
+#### Standard MPI
+
+Comments from STATA code:
+
+_Members of the household are considered deprived if the household's sanitation facility is not improved (according to the SDG guideline) or it is improved but shared with other households_
+
+```{r sanitation std MPI}
+merged_dat %<>%
+  mutate(
+    toilet_mdg = ((toilet <= 22 | toilet == 31) & shared_toilet != 1),
+    toilet_mdg = ifelse(
+      ((toilet <= 22 | toilet == 31) & shared_toilet == 1),
+      FALSE, toilet_mdg),
+    toilet_mdg = structure(
+      ifelse((is.na(toilet)|toilet ==99), NA, toilet_mdg),
+      label = "Household has improved sanitation with MDG Standards"
+    )
+  )
+
+# Tabel toilet_mdg
+
+merged_dat %>% 
+  tabyl(toilet_mdg, show_na = T) %>% 
+  gt()
+```
+
+
+
+
+
