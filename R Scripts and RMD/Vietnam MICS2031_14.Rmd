@@ -16,6 +16,8 @@ This HTML notebook will replicate the STATA do file named __vnm_mics14_dp2019 fo
 
 I will follow the same section numbering as in the do file for ease of comparision.
 
+Goes without saying, __all mistakes in this document are mine.__
+
 # Libraries
 
 Before we go into the excercise, following are the packages from which we will use various functions.
@@ -1468,4 +1470,295 @@ merged_dat %>%
 ```
 
 ### Step 2.8: Housing
+
+Comments from STATA code:
+
+_Members of the household are considered deprived if the household has a dirt, sand or dung floor_
+
+```{r new vars housing}
+merged_dat %<>%
+  mutate(
+    floor = hc3,
+    floor_imp = 1,
+    floor_imp = ifelse(floor == 11 | floor == 96,0, floor_imp),
+    floor_imp = structure(
+      ifelse(is.na(floor)|floor == 99, NA, floor_imp),
+      label = "Household has floor that it is not earth/sand/dung"
+    )
+  )
+# Table floor_imp
+
+merged_dat %>% 
+  tabyl(floor, floor_imp, show_na = T) %>% 
+  kableExtra::kable()
+
+```
+
+Comments from STATA:
+
+_Members of the household are considered deprived if the household has wall made of natural or rudimentary materials_
+
+```{r walls housing vars}
+merged_dat %<>%
+  mutate(
+    wall = hc5,
+    wall_imp = 1,
+    wall_imp = ifelse(wall <= 26|wall == 96,0, wall_imp),
+    wall_imp = structure(
+      ifelse(is.na(wall), NA, wall_imp),
+      label = "Household has wall that it is not of low quality materials"
+    )
+  )
+
+# table wall and wall_imp
+merged_dat %>% 
+  tabyl(wall, wall_imp, show_na = T) %>% 
+  kableExtra::kable()
+```
+
+Comments from STATA code:
+
+_Members of the household are considered deprived if the household has roof made of natural or rudimentary materials_
+
+```{r roof new vars housing}
+merged_dat %<>%
+  mutate(
+    roof = hc4,
+    roof_imp = 1,
+    roof_imp = ifelse(roof <= 23|roof == 96,0, roof_imp),
+    roof_imp = structure(
+      ifelse(is.na(roof), NA, roof_imp),
+      label = "Household has roof that it is not of low quality materials"
+    )
+  )
+
+# table roof and roof_imp
+merged_dat %>% 
+  tabyl(roof, roof_imp, show_na = T) %>% 
+  kableExtra::kable()
+```
+
+#### Standard MPI
+
+Comments from the STATA Code:
+
+```{r std mpi vars housing}
+merged_dat %<>%
+  mutate(
+    housing_1 = ifelse(
+      (floor_imp == 0| wall_imp == 0| roof_imp == 0),0,1
+    ),
+    housing_1 = structure(
+      ifelse(
+        (is.na(floor_imp) & is.na(wall_imp) & is.na(roof_imp)),
+        NA,housing_1
+      ),
+      label = "Household has roof, floor & walls that it is not low quality material"
+    )
+  )
+
+# Table housing_1
+
+merged_dat %>% 
+  tabyl(housing_1, show_na = T) %>% 
+  gt()
+```
+
+### Step 2.9: Cooking Fuel
+
+Comments from STATA code:
+
+_Solid fuel are solid materials burned as fuels, which includes coal as well as solid biomass fuels (wood, animal dung, crop wastes and charcoal). Source: https://apps.who.int/iris/bitstream/handle/10665/141496/9789241548885_eng.pdf_
+
+```{r new vars cooking fuel}
+merged_dat %<>%
+  mutate(
+    cookingfuel = hc6,
+    cooking_mdg = 1,
+    cooking_mdg = ifelse(cookingfuel > 5 & cookingfuel < 95,
+                         0,cooking_mdg),
+    cooking_mdg = structure(
+      ifelse(is.na(cookingfuel) | cookingfuel == 99,NA,cooking_mdg),
+      label = "Household has cooking fuel according to MDG standards"
+    )
+  )
+
+
+# table cooking fuel and cooking coking_mdg
+merged_dat %>% 
+  tabyl(cookingfuel, cooking_mdg, show_na = T) %>% 
+  kableExtra::kable()
+
+```
+
+### Step 2.10: Assets Ownership
+
+Comments from STATA code:
+
+_Assets that are included in the global MPI: Radio, TV, telephone, bicycle, motorbike, refrigerator, car, computer and animal cart_
+
+Creating new variables
+
+```{r Assets new vars}
+merged_dat %<>%
+  mutate(
+    television = structure(
+      ifelse(hc8c == 1,1,
+             ifelse(hc8c == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    bw_television = NA,
+    radio = structure(
+      ifelse(hc8b == 1,1,
+             ifelse(hc8b == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    telephone = structure(
+      ifelse(hc8d == 1,1,
+             ifelse(hc8d == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    mobiletelephone = structure(
+      ifelse(hc9b == 1,1,
+             ifelse(hc9b == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    refrigerator = structure(
+      ifelse(hc8e == 1,1,
+             ifelse(hc8e == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    car = structure(
+      ifelse(hc8p == 1,1,
+             ifelse(hc8p == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    bicycle = structure(
+      ifelse(hc9c == 1,1,
+             ifelse(hc9c == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    motorbike = structure(
+      ifelse(hc9d == 1,1,
+             ifelse(hc9d == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    computer = structure(
+      ifelse(hc8j == 1,1,
+             ifelse(hc8j == 2,0,NA)),
+      labels = c("Yes" = 1, "No" = 0)
+    ),
+    animal_cart = NA
+  )
+```
+
+Grouping telephone and mobiletelephone as a single variable
+
+```{r group telephone mobile}
+merged_dat %<>%
+  mutate(
+    telephone = ifelse(
+      (telephone == 0 & mobiletelephone == 1) | 
+        (is.na(telephone) & mobiletelephone == 1),
+      1, telephone
+    )
+  )
+```
+
+#### Standarad MPI
+
+Comments from STATA code:
+
+_Members of the household are considered deprived in assets if the household does not own more than one of: radio, TV, telephone, bike, motorbike, refrigerator, computer or animal cart and does not own a car or truck._
+
+```{r standard MPI Assets}
+merged_dat %<>% 
+  mutate(
+    n_small_assets2 = structure(
+      ifelse(
+        (is.na(television)&is.na(radio)&is.na(telephone)&
+           is.na(refrigerator)&is.na(bicycle)&is.na(motorbike)&
+           is.na(computer)&is.na(animal_cart)), 
+        NA,rowSums(.[,c(305,307,308,310,312:315)],na.rm = T)
+      ),
+      label = "Household number of small assets owned"),
+    hh_assets2 = (car ==1 | n_small_assets2 > 1),
+    hh_assets2 = structure(
+      ifelse(is.na(car) & is.na(n_small_assets2),NA,hh_assets2),
+      label = "Household Asset Ownership: HH has car or more than 1 small assets incl computer & animal cart"
+    )
+  ) 
+```
+
+### Rename and keep variables for MPI calculations
+
+Retain data on smapling design
+
+```{r retainf data sampling design}
+colnames(merged_dat)[251] <- "strata"
+```
+
+Retain year, month and date of interview
+
+```{r retain year, month and date}
+merged_dat %<>%
+  mutate(
+     year_interview = hh5y.x,
+     month_interview = hh5m.x,
+     date_interview = hh5d.x 
+  )
+```
+
+Generate persence of subsample
+
+```{r gen presence of sub sample}
+merged_dat %<>%
+  mutate(
+    subsample = NA
+  )
+```
+
+Rename key global MPI indicators for estimation 
+
+```{r rename global MPI indicators}
+merged_dat %<>%
+  mutate(
+    d_cm = ifelse(hh_mortality_u18_5y == 1,0,
+                  ifelse(hh_mortality_u18_5y == 0,
+                         1, hh_mortality_u18_5y)),
+    d_nutr = ifelse(hh_nutrition_uw_st == 1,0,
+                  ifelse(hh_nutrition_uw_st == 0,
+                         1, hh_nutrition_uw_st)),
+    d_satt = ifelse(hh_child_atten == 1,0,
+                  ifelse(hh_child_atten == 0,
+                         1, hh_child_atten)),
+    d_educ = ifelse(hh_years_edu6 == 1,0,
+                  ifelse(hh_years_edu6 == 0,
+                         1, hh_years_edu6)),
+    d_elct = ifelse(electricity == 1,0,
+                  ifelse(electricity == 0,
+                         1, electricity)),
+    d_wtr = ifelse(water_mdg == 1,0,
+                  ifelse(water_mdg == 0,
+                         1, water_mdg)),
+    d_sani = ifelse(toilet_mdg == 1,0,
+                  ifelse(toilet_mdg == 0,
+                         1, toilet_mdg)),
+    d_hsg = ifelse(housing_1 == 1,0,
+                  ifelse(housing_1 == 0,
+                         1, housing_1)),
+    d_ckfl = ifelse(cooking_mdg == 1,0,
+                  ifelse(cooking_mdg == 0,
+                         1, cooking_mdg)),
+    d_asst = ifelse(hh_assets2 == 1,0,
+                  ifelse(hh_assets2 == 0,
+                         1, hh_assets2))
+  )
+```
+
+Writing the file in csv format.
+
+```{r write csv MPI dimensions}
+write_csv(merged_dat,here("output data files","2.11vnm_mics14.csv"))
+```
 
