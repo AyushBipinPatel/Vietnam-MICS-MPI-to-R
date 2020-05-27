@@ -1762,3 +1762,36 @@ Writing the file in csv format.
 write_csv(merged_dat,here("output data files","2.11vnm_mics14.csv"))
 ```
 
+
+
+### Mean uncensored headcout check
+
+```{r}
+# mean(merged_dat$d_asst) #1/18
+# mean(merged_dat$d_ckfl) #1/18
+# mean(merged_dat$d_hsg)  #1/18
+# mean(merged_dat$d_sani) #1/18
+# mean(merged_dat$d_wtr)  #1/18 ####### incorrect
+# mean(merged_dat$d_elct) #1/18
+# mean(merged_dat$d_educ) #1/6 
+# mean(merged_dat$d_satt) #1/6
+# mean(merged_dat$d_cm)   #1/3  ####### incorect - missing
+
+merged_dat %>% 
+  summarise(
+    mean_uncensored_H_d_Asst = mean(merged_dat$d_asst),
+    mean_uncensored_H_d_ckfl = mean(merged_dat$d_ckfl),
+    mean_uncensored_H_d_hsg = mean(merged_dat$d_hsg),
+    mean_uncensored_H_d_sani = mean(merged_dat$d_sani),
+    mean_uncensored_H_d_wtr = mean(merged_dat$d_wtr),
+    mean_uncensored_H_d_elct = mean(merged_dat$d_elct),
+    mean_uncensored_H_d_educ = mean(merged_dat$d_educ),
+    mean_uncensored_H_d_satt = mean(merged_dat$d_satt),
+    mean_uncensored_H_d_cm = mean(merged_dat$d_cm),
+  ) %>% 
+  transpose() %>% 
+  unlist() %>% 
+  as.data.frame() %>% 
+  kableExtra::kable()
+```
+
