@@ -536,7 +536,7 @@ merged_dat %>%
 ```{r no eligibles}
 merged_dat %>% 
   mutate(
-    fem_eligible = ifelse(hl7 > 0 & !is.na(hl7), TRUE, NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
+    fem_eligible = ifelse(!is.na(hl7), (hl7 > 0), NA), ## if hl7 is greater than 0, it cannot be NA, but I will stick to the STATA code for now
     ) %>% 
   group_by(hh_id) %>% 
   mutate(
@@ -1228,11 +1228,8 @@ merged_dat %<>%
 ```{r new vars child mortality}
 merged_dat %<>% 
   mutate(
-    temp_f = case_when(
-      is.na(cm9a) & !is.na(cm9b) ~ cm9b,
-      !is.na(cm9a) & is.na(cm9b) ~ cm9a,
-      !is.na(cm9a) & !is.na(cm9b) ~ cm9b + cm9b,
-    ),
+    temp_f = ifelse((is.na(cm9a) & is.na(cm9b)),NA,
+                    rowSums(.[,c(101,102)], na.rm = T)),
     temp_f = ifelse(
       (cm1 == 1 & cm8 ==2) | cm1 == 2,
       0, temp_f
@@ -1764,9 +1761,9 @@ write_csv(merged_dat,here("output data files","2.11vnm_mics14.csv"))
 
 
 
-### Mean uncensored headcout check
+### Mean uncensored headcout check (without using sample weights)
 
-```{r}
+```{r check mean uncensored}
 # mean(merged_dat$d_asst) #1/18
 # mean(merged_dat$d_ckfl) #1/18
 # mean(merged_dat$d_hsg)  #1/18
@@ -1792,6 +1789,95 @@ merged_dat %>%
   transpose() %>% 
   unlist() %>% 
   as.data.frame() %>% 
-  kableExtra::kable()
+  kableExtra::kable(col.names = c("Mean Uncensred Headcount"))
+```
+
+### Mean uncensored headcout check (_with_ using sample weights)
+
+```{r sample weighted uncencorceed Head count ratio}
+merged_dat %>% 
+  summarise(
+    mean_uncensored_H_d_Asst = weighted.mean(merged_dat$d_asst,
+                                             w = weight),
+    mean_uncensored_H_d_ckfl = weighted.mean(merged_dat$d_ckfl,
+                                             w = weight),
+    mean_uncensored_H_d_hsg = weighted.mean(merged_dat$d_hsg,
+                                             w = weight),
+    mean_uncensored_H_d_sani = weighted.mean(merged_dat$d_sani,
+                                             w = weight),
+    mean_uncensored_H_d_wtr = weighted.mean(merged_dat$d_wtr,
+                                             w = weight),
+    mean_uncensored_H_d_elct = weighted.mean(merged_dat$d_elct,
+                                             w = weight),
+    mean_uncensored_H_d_educ = weighted.mean(merged_dat$d_educ,
+                                             w = weight),
+    mean_uncensored_H_d_satt = weighted.mean(merged_dat$d_satt,
+                                             w = weight),
+    mean_uncensored_H_d_cm = weighted.mean(merged_dat$d_cm,
+                                             w = weight),
+  ) %>% 
+  transpose() %>% 
+  unlist() %>% 
+  as.data.frame() %>% 
+  kableExtra::kable(col.names = c("Mean Uncensred Headcount"))
+```
+
+### Setting Dimension weights
+
+Follwoing are the Weights for each dimension:
+
+```{r info dimension weights}
+tibble(Dimensions = c("Assets", "Cooking Fuel", "Housing", "Sanitation",
+                      "Water", "Electricity", "Education", 
+                      "School Attendance", "Child Mortality"),
+       Dimensional_Weights = c(rep(1/18,6), 1/6, 1/6, 1/3)) %>% 
+  knitr::kable()
+```
+
+```{r}
+w_asst = 1/18
+w_ckfl = 1/18
+w_hsg = 1/18
+w_sani = 1/18
+w_wtr = 1/18
+w_elct = 1/18
+w_edu = 1/6
+w_satt = 1/6
+w_cm = 1/3
+```
+
+### Creating a weighted deprivation Matrix
+
+```{r}
+merged_dat %<>%
+  mutate(
+    g0_w_d_asst = d_asst * w_asst,
+    g0_w_d_ckfl = d_ckfl * w_ckfl,
+    g0_w_d_hsg = d_hsg * w_hsg,
+    g0_w_d_sani = d_sani * w_sani,
+    g0_w_d_wtr = d_wtr * w_wtr,
+    g0_w_d_elct = d_elct * w_elct,
+    g0_w_d_educ = d_educ * w_edu,
+    g0_w_d_satt = d_satt * w_satt,
+    g0_w_d_cm = d_cm * w_cm,
+  )
+
+```
+
+
+### Counting Vector
+
+```{r countig vector}
+merged_dat %<>%
+  mutate(
+    c_vector = structure(rowSums(.[,c(332:340)],na.rm = T),
+                         label = "Counting Vector")
+  )
+
+### Table c_vector
+
+merged_dat %>% 
+  tabyl(c_vector, show_na = T) %>% 
+  gt()
 ```
 
