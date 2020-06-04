@@ -1881,3 +1881,80 @@ merged_dat %>%
   gt()
 ```
 
+### Identification
+
+```{r identification}
+merged_dat %<>%
+  mutate(
+    multid_poor_33 = (c_vector >= 1/3),
+    multid_poor_50 = (c_vector >= .5),
+    multid_poor_20 = (c_vector >= .2)
+  )
+
+```
+
+### Censored Counting Vector
+
+```{r censored Counting vector}
+merged_dat %<>%
+  mutate(
+    cens_c_vector_33 = ifelse(multid_poor_33 == TRUE, c_vector,0),
+    cens_c_vector_50 = ifelse(multid_poor_50 == TRUE, c_vector,0),
+    cens_c_vector_20 = ifelse(multid_poor_20 == TRUE, c_vector,0)
+  )
+```
+
+### M, H and A for all cut offs (1/3, .20, .50)
+
+Comments from STATA code:
+
+_By sumarizing (obtaining the mean) of the identification vector, the individual deprivation share,_ 
+
+_and the individual censored c vector at any level of k we will obtain the Multidimensional Headcount_  
+
+_Ratio (H), the Intensity of Poverty among the Poor (A), and the Adjusted Headcount Ratio (M0), respectively._
+
+#### At k = 1/3
+
+__Headcount __
+
+```{r H_33}
+weighted.mean(merged_dat$multid_poor_33, merged_dat$weight) 
+```
+
+At k = 1/3 , 4.3% of the peopel are poor (multidimensionally deprived).
+
+__Intensity__
+
+```{r A_33}
+merged_dat %>% 
+  filter(multid_poor_33 == 1) %>% 
+  summarise(
+    Intensity = weighted.mean(cens_c_vector_33,weight)
+  )
+
+```
+
+At k = 1/3, the average Intensity of poverty is 38.1%
+
+__MPI__
+
+M = A * I 
+
+can also be calculated using the mean of the cens_c_vector at k = 1/3
+
+```{r M_33}
+merged_dat %>% 
+  summarise(
+    M = weighted.mean(cens_c_vector_33,weight)
+  )
+```
+
+Now using the product of H and A
+
+```{r M_33_product}
+ 0.04322876 * 0.3814201	
+
+```
+
+
