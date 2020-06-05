@@ -30,6 +30,7 @@ library(haven)
 library(gt)
 library(readr)
 library(magrittr)
+library(glue)
 ```
 
 # Building a Well-Being Index from Vietnam MICS 2013-14
@@ -1916,7 +1917,7 @@ _Ratio (H), the Intensity of Poverty among the Poor (A), and the Adjusted Headco
 
 #### At k = 1/3
 
-__Headcount __
+__Headcount/Incidence of Multidimensional Poverty __
 
 ```{r H_33}
 weighted.mean(merged_dat$multid_poor_33, merged_dat$weight) 
@@ -1943,12 +1944,19 @@ M = A * I
 
 can also be calculated using the mean of the cens_c_vector at k = 1/3
 
-```{r M_33}
+```{r saving M_33}
 merged_dat %>% 
   summarise(
     M = weighted.mean(cens_c_vector_33,weight)
-  )
+  ) -> M_33
+
+M_33$M[1] -> M_33
 ```
+
+```{r M_33}
+M_33
+```
+
 
 Now using the product of H and A
 
@@ -1957,4 +1965,88 @@ Now using the product of H and A
 
 ```
 
+__Censored Deprivation Matrix__
+
+
+Since here we would require the same operation to be performed over many columns, I would like to intriduce the concept for writing a small function in R as well as using it with the across function of the dplyr package. This technique could have been employed sooner in this document but I wanted the reader to get familiar with the basics before I jump into more advanced things.
+
+Keep in mind the following stata code, we will wite an equivalent R code.
+
+_foreach var in hh_d_school hh_d_nutri hh_d_water hh_d_assets {_ 
+ 
+ _gen g0_ _`k'_ _`var' = `var'_  
+ _replace g0_ _`k'_ _`var' = 0 if multid_poor_ _`k'==0  }_
+
+
+First we write the function that uses the performs the conditional expression.
+
+```{r funciton to create censored deprivation matrix}
+
+create_censored_depreivation_mat <- function(x,y){
+  ifelse(y == 0,0,x)
+}
+
+### Here the x argument will be the columns that show if a person is deprived in a certain dimension or not. In this case thee are named as d_Asst, d_ckfl etc.
+
+### The y argument is the one that show if a person is poor (multidimensionally) at a given k. In this case it this coulmn can be multid_poor_33, multid_poor_20 etc.
+
+```
+
+
+```{r censored deprivation matrix k33}
+merged_dat %>% 
+  mutate(
+    across(dplyr::starts_with("d_"), create_censored_depreivation_mat,
+           multid_poor_33, .names = "g0_33_{col}")
+  ) %>% 
+  relocate(dplyr::starts_with("g0_33_")) %>% head()
+```
+
+```{r saving censored mat to merged data}
+merged_dat %<>% 
+  mutate(
+    across(dplyr::starts_with("d_"), create_censored_depreivation_mat,
+           multid_poor_33, .names = "g0_33_{col}")
+  )
+```
+
+
+__Censored Headcount Ratios for Indicators__
+
+
+```{r censored headcount ratios for indicators}
+merged_dat %>% 
+  summarise(
+    across(dplyr::starts_with("g0_33_"), 
+           weighted.mean,weight, .names = "cen_H_{col}")
+  ) %>% 
+  transpose() %>% 
+  unlist() %>% 
+  as.data.frame() %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling()
+```
+
+
+__Dimensional Breakdown: Percentage contribution__
+
+
+```{r Dimensional Breakdown_percentage constribution}
+merged_dat %>% 
+  summarise(
+    across(dplyr::starts_with("g0_33_"), 
+           weighted.mean,weight, .names = "cen_H_{col}")
+  ) %>% 
+  pivot_longer(cols = cen_H_g0_33_d_cm:cen_H_g0_33_d_asst,
+               names_to = "Dimension",
+               values_to = "Headcount_ratio_for_indicators_atk33" ) %>% 
+  mutate(
+    Dimension = str_extract(Dimension, "d_.*"),
+    dimensional_weights = c(1/3, NA, 1/6, 1/6, 1/18, 1/18, 1/18, 1/18, 1/18, 1/18),
+    percentage_contribution_by_indicator = 
+      (Headcount_ratio_for_indicators_atk33 * dimensional_weights)/M_33
+  ) %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling()
+```
 
