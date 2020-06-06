@@ -2047,6 +2047,67 @@ merged_dat %>%
       (Headcount_ratio_for_indicators_atk33 * dimensional_weights)/M_33
   ) %>% 
   knitr::kable() %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  kableExtra::row_spec(0,bold = T,color = "#ffffff" ,background = "#009688") %>%  
+  kableExtra::scroll_box(width = "100%", height = "100%")
+```
+
+__Subgroup Decomposition__
+
+_Regional Headcount/incidence of Multidimensional Poverty_
+
+```{r regional H_33, message=FALSE}
+merged_dat %>% 
+  group_by(region) %>% 
+  summarise(
+    H_region_33 = weighted.mean(multid_poor_33, weight)
+  ) %>% 
+  knitr::kable() %>% 
   kableExtra::kable_styling()
 ```
+
+_Regional Intensity of Multidimensional Poverty_
+
+
+```{r regional A_33, message=FALSE}
+merged_dat %>% 
+  filter(multid_poor_33 == 1) %>% 
+  group_by(region) %>% 
+  summarise(
+    Intensity_Region_33 = weighted.mean(cens_c_vector_33,weight)
+  )%>%
+  knitr::kable()%>%
+  kableExtra::kable_styling()
+```
+
+_Regional MPI_
+
+```{r regional MPI_33, message=FALSE}
+merged_dat %>% 
+  group_by(region) %>% 
+  summarise(
+    M_regional_33 = weighted.mean(cens_c_vector_33,weight)
+  ) %>%
+  knitr::kable()%>%
+  kableExtra::kable_styling()
+```
+
+_Regional Censored Headcount Ratios for Indicators_
+
+```{r regional censored headcount for indicators, message=FALSE}
+merged_dat %>% 
+  group_by(region) %>% 
+  summarise(
+    across(dplyr::starts_with("g0_33_"), 
+           weighted.mean,weight, .names = "cen_H_{col}")
+  ) %>% 
+  knitr::kable() %>% 
+  kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed")) %>%
+  kableExtra::row_spec(0,bold = T,color = "#ffffff" ,background = "#009688") %>% 
+  kableExtra::scroll_box(width = "100%", height = "100%")
+```
+
+
+
+
 
