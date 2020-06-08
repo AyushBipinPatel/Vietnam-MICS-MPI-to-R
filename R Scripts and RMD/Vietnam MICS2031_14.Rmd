@@ -2107,6 +2107,20 @@ merged_dat %>%
   kableExtra::scroll_box(width = "100%", height = "100%")
 ```
 
+_Regional Contributuion to Poverty_
+
+```{r}
+merged_dat %>% 
+  group_by(region) %>% 
+  summarise(
+    pop_share = n()/nrow(merged_dat),
+    M_regional_33 = weighted.mean(cens_c_vector_33, weight),
+    Regional_Contribution = pop_share * M_regional_33/M_33
+  ) %>%
+  knitr::kable()%>%
+  kableExtra::kable_styling()
+  
+```
 
 
 
