@@ -1,0 +1,3770 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\results\log_vietnam.txt
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res} 8 Jun 2020, 16:45:32
+{txt}
+{com}.         
+. ********************************************************************************
+. *** VIETNAM MICS 2014 ***
+. ********************************************************************************
+. 
+. 
+. ********************************************************************************
+. *** Step 1: Data preparation 
+. *** Selecting main variables from CH, WM, HH & MN recode & merging with HL recode 
+. ********************************************************************************
+. 
+. /*It should be noted that anthropometric data was not collected for children 
+> under 5 as part of the Viet Nam MICS 2014 dataset. Previously, nutrition data 
+> was collected as part of Viet Nam MICS 2011. However, the data was not collected 
+> in this round due to time and resource constraints as well as the availability 
+> of national nutrition survey data (p.61) */
+. 
+. ********************************************************************************
+. *** Step 1.1 CH - CHILDREN's RECODE (under 5)
+. ********************************************************************************        
+. 
+. //No data
+. 
+. ********************************************************************************
+. *** Step 1.2  BH - BIRTH RECODE 
+. *** (All females 15-49 years who ever gave birth)  
+. ********************************************************************************
+. /*The purpose of step 1.2 is to identify children of any age who died in 
+> the last 5 years prior to the survey date.*/
+. 
+. 
+. usespss "C:\Users\oldig\Documents\Vietnam-MICS-MPI-to-R\bh_ayush.sav" , clear
+{res}{text} {break}{ stata `"mata usespss_about()"':usespss} {text}is converting file {result}C:\Users\oldig\Documents\Vietnam-MICS-MPI-to-R\bh_ayush.sav{break} {break}USESPSS
+Attempting to convert: C:\Users\oldig\Documents\Vietnam-MICS-MPI-to-R\bh_ayush.sav
+Processing started: 08/06/2020 16:45:33
+Number of cases: 15479
+Signature (must be "$FL2"):$FL2
+Product line: @(#) IBM SPSS STATISTICS MS Windows 21.0.0.1                
+No file label found
+Creation date and time:21 Sep 15 16:33:22
+This is an SPSS/Windows file
+File size is 1517416 bytes
+File contains 15479 cases
+Case size is 288 bytes in 36 chunks (1chunk = 8bytes)
+Data compression: yes (compression bias is 100)
+Weighting is not set
+
+
+Found record 7.3[8*4]: Source system characteristics
+    Release number:                     21
+    Release sub-number:                 0
+    Special release identifier number:  1
+    Machine code:                       suppressed
+    Floating-point representation code: 1 (IEEE)
+    Compression scheme code:            1
+    Byte order code:                    2 (little-endian)
+    Character representation code:      65001
+
+Found record 7.4[3*8]: Source system floating pt constants
+    skipped
+
+Found record 7.11[108*4]: Msmt level, col width, & alignment
+    processed
+
+Found record 7.13[422*1]: Extended variable names
+    processed
+
+Found record 7.16[2*8]: 64 bit N of cases
+    skipped
+
+Found record 7.18[679*1]: Variable attributes
+    skipped
+
+Found record 7.20[5*1]: Code page
+    Codepage: utf-8
+    processed
+
+Found record 7.24[378*1]: Unknown record type: 24
+    skipped
+
+Busy - processing variables (36 variables)
+
+Busy - processing data (36 variables)
+Allocating buffer for decompressed data...
+288 bytes
+Allocating buffer for variable descriptors...
+1008 bytes
+Memory set!
+Starting decompression: 16:45:33
+Optimized data record size is:70
+Allocated 1048576 bytes for the write buffer
+Write buffer capacity is 14979 records
+All done: 16:45:33
+Data saved to C:\Users\oldig\AppData\Local\Temp\ST_4e44_000001.tmp
+{break}{break}{txt}{col 1}HH1{col 12}BH3{col 23}BH7{col 34}BH4C{col 45}HH7{col 56}brthord{col 67}windex5{col 78}windex2
+{col 1}HH2{col 12}BH4M{col 23}BH8{col 34}BH4F{col 45}WDOI{col 56}magebrt{col 67}wscoreu
+{col 1}LN{col 12}BH4Y{col 23}BH9U{col 34}BH9C{col 45}WDOB{col 56}birthint{col 67}windex5u
+{col 1}BHLN{col 12}BH5{col 23}BH9N{col 34}BH9F{col 45}ethnicity{col 56}wmweight{col 67}wscorer
+{col 1}BH2{col 12}BH6{col 23}BH10{col 34}HH6{col 45}welevel{col 56}wscore{col 67}windex5r
+{res}{txt}
+{com}. 
+. *usespss "$path_in/bh.sav", clear
+. 
+. 
+. rename _all, lower      
+{res}{txt}
+{com}. 
+.                 
+. *** Generate individual unique key variable required for data merging using:
+.         *** hh1=cluster number; 
+.         *** hh2=household number; 
+.         *** wm4=women's line number.   
+. gen double ind_id = hh1*100000 + hh2*100 + ln 
+{txt}
+{com}. format ind_id %20.0g
+{txt}
+{com}. label var ind_id "Individual ID"
+{txt}
+{com}. 
+. tab bh5, miss
+
+{txt}Still alive {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+        Yes {c |}{res}     14,948       96.57       96.57
+{txt}         No {c |}{res}        531        3.43      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     15,479      100.00
+{txt}
+{com}. 
+. tab bh9c, miss                  
+
+     {txt}Age at {c |}
+      death {c |}
+     months {c |}
+  (imputed) {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}        242        1.56        1.56
+{txt}          1 {c |}{res}         33        0.21        1.78
+{txt}          2 {c |}{res}         17        0.11        1.89
+{txt}          3 {c |}{res}         17        0.11        2.00
+{txt}          4 {c |}{res}          9        0.06        2.05
+{txt}          5 {c |}{res}          5        0.03        2.09
+{txt}          6 {c |}{res}         14        0.09        2.18
+{txt}          7 {c |}{res}          6        0.04        2.22
+{txt}          8 {c |}{res}         10        0.06        2.28
+{txt}          9 {c |}{res}          2        0.01        2.29
+{txt}         11 {c |}{res}          5        0.03        2.33
+{txt}         12 {c |}{res}         23        0.15        2.47
+{txt}         14 {c |}{res}          5        0.03        2.51
+{txt}         18 {c |}{res}          3        0.02        2.53
+{txt}         19 {c |}{res}          1        0.01        2.53
+{txt}         20 {c |}{res}          2        0.01        2.55
+{txt}         23 {c |}{res}          4        0.03        2.57
+{txt}         24 {c |}{res}         22        0.14        2.71
+{txt}         36 {c |}{res}         27        0.17        2.89
+{txt}         48 {c |}{res}         14        0.09        2.98
+{txt}         60 {c |}{res}          6        0.04        3.02
+{txt}         72 {c |}{res}          9        0.06        3.08
+{txt}         84 {c |}{res}          3        0.02        3.09
+{txt}         96 {c |}{res}          5        0.03        3.13
+{txt}        108 {c |}{res}          6        0.04        3.17
+{txt}        120 {c |}{res}          1        0.01        3.17
+{txt}        132 {c |}{res}          1        0.01        3.18
+{txt}        144 {c |}{res}          3        0.02        3.20
+{txt}        156 {c |}{res}          1        0.01        3.20
+{txt}        168 {c |}{res}          3        0.02        3.22
+{txt}        180 {c |}{res}          1        0.01        3.23
+{txt}        192 {c |}{res}          7        0.05        3.28
+{txt}        204 {c |}{res}          3        0.02        3.29
+{txt}        216 {c |}{res}          7        0.05        3.34
+{txt}        228 {c |}{res}          4        0.03        3.37
+{txt}        240 {c |}{res}          3        0.02        3.39
+{txt}        252 {c |}{res}          1        0.01        3.39
+{txt}        264 {c |}{res}          2        0.01        3.40
+{txt}        276 {c |}{res}          3        0.02        3.42
+{txt}        312 {c |}{res}          1        0.01        3.43
+{txt}          . {c |}{res}     14,948       96.57      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     15,479      100.00
+{txt}
+{com}.                 
+. desc bh4c bh9c  
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:bh4c           }{txt}{bind: int     }{bind:{txt}%16.0f    }{space 1}{bind:         }{bind:  }{res}{res}Date of birth of child (CMC){p_end}
+{p 0 48}{bind:bh9c           }{txt}{bind: int     }{bind:{txt}%16.0f    }{space 1}{bind:         }{bind:  }{res}{res}Age at death months (imputed){p_end}
+{txt}
+{com}. gen date_death = bh4c + bh9c    
+{txt}(14,948 missing values generated)
+
+{com}.         //Date of death = date of birth (bh4c) + age at death (bh9c)    
+. gen mdead_survey = wdoi-date_death      
+{txt}(14,948 missing values generated)
+
+{com}.         //Months dead from survey = Date of interview (wdoi) - date of death    
+. replace mdead_survey = . if (bh9c==0 | bh9c==.) & bh5==1        
+{txt}(0 real changes made)
+
+{com}.         /*Replace children who are alive as '.' to distinguish them from children 
+>         who died at 0 months */ 
+. gen ydead_survey = mdead_survey/12
+{txt}(14,948 missing values generated)
+
+{com}.         //Years dead from survey
+.         
+.         
+. gen age_death = bh9c if bh5==2
+{txt}(14,948 missing values generated)
+
+{com}. label var age_death "Age at death in months"    
+{txt}
+{com}. tab age_death, miss
+
+     {txt}Age at {c |}
+   death in {c |}
+     months {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}        242        1.56        1.56
+{txt}          1 {c |}{res}         33        0.21        1.78
+{txt}          2 {c |}{res}         17        0.11        1.89
+{txt}          3 {c |}{res}         17        0.11        2.00
+{txt}          4 {c |}{res}          9        0.06        2.05
+{txt}          5 {c |}{res}          5        0.03        2.09
+{txt}          6 {c |}{res}         14        0.09        2.18
+{txt}          7 {c |}{res}          6        0.04        2.22
+{txt}          8 {c |}{res}         10        0.06        2.28
+{txt}          9 {c |}{res}          2        0.01        2.29
+{txt}         11 {c |}{res}          5        0.03        2.33
+{txt}         12 {c |}{res}         23        0.15        2.47
+{txt}         14 {c |}{res}          5        0.03        2.51
+{txt}         18 {c |}{res}          3        0.02        2.53
+{txt}         19 {c |}{res}          1        0.01        2.53
+{txt}         20 {c |}{res}          2        0.01        2.55
+{txt}         23 {c |}{res}          4        0.03        2.57
+{txt}         24 {c |}{res}         22        0.14        2.71
+{txt}         36 {c |}{res}         27        0.17        2.89
+{txt}         48 {c |}{res}         14        0.09        2.98
+{txt}         60 {c |}{res}          6        0.04        3.02
+{txt}         72 {c |}{res}          9        0.06        3.08
+{txt}         84 {c |}{res}          3        0.02        3.09
+{txt}         96 {c |}{res}          5        0.03        3.13
+{txt}        108 {c |}{res}          6        0.04        3.17
+{txt}        120 {c |}{res}          1        0.01        3.17
+{txt}        132 {c |}{res}          1        0.01        3.18
+{txt}        144 {c |}{res}          3        0.02        3.20
+{txt}        156 {c |}{res}          1        0.01        3.20
+{txt}        168 {c |}{res}          3        0.02        3.22
+{txt}        180 {c |}{res}          1        0.01        3.23
+{txt}        192 {c |}{res}          7        0.05        3.28
+{txt}        204 {c |}{res}          3        0.02        3.29
+{txt}        216 {c |}{res}          7        0.05        3.34
+{txt}        228 {c |}{res}          4        0.03        3.37
+{txt}        240 {c |}{res}          3        0.02        3.39
+{txt}        252 {c |}{res}          1        0.01        3.39
+{txt}        264 {c |}{res}          2        0.01        3.40
+{txt}        276 {c |}{res}          3        0.02        3.42
+{txt}        312 {c |}{res}          1        0.01        3.43
+{txt}          . {c |}{res}     14,948       96.57      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     15,479      100.00
+{txt}
+{com}.         //Check whether the age is in months                    
+.         
+.         
+. codebook bh5, tab (10)  
+
+{txt}{hline}
+{res}bh5{right:Still alive}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:BH5}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}15,479
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    14,948{col 33}       1{col 43}{txt}Yes
+{col 21}{res}       531{col 33}       2{col 43}{txt}No
+
+{com}. gen child_died = 1 if bh5==2
+{txt}(14,948 missing values generated)
+
+{com}. replace child_died = 0 if bh5==1
+{txt}(14,948 real changes made)
+
+{com}. replace child_died = . if bh5==.
+{txt}(0 real changes made)
+
+{com}. label define lab_died 0"child is alive" 1"child has died"
+{txt}
+{com}. label values child_died lab_died
+{txt}
+{com}. tab bh5 child_died, miss
+
+     {txt}Still {c |}      child_died
+     alive {c |} child is   child has {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+       Yes {c |}{res}    14,948          0 {txt}{c |}{res}    14,948 
+{txt}        No {c |}{res}         0        531 {txt}{c |}{res}       531 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}    14,948        531 {txt}{c |}{res}    15,479 
+{txt}
+{com}.         
+. 
+. tab child_died, miss
+
+    {txt}child_died {c |}      Freq.     Percent        Cum.
+{hline 15}{c +}{hline 35}
+child is alive {c |}{res}     14,948       96.57       96.57
+{txt}child has died {c |}{res}        531        3.43      100.00
+{txt}{hline 15}{c +}{hline 35}
+         Total {c |}{res}     15,479      100.00
+{txt}
+{com}. 
+.         
+. bysort ind_id: egen tot_child_died = sum(child_died) 
+{txt}
+{com}.         //For each woman, sum the number of children who died
+.                 
+.         
+.         //Identify child under 18 mortality in the last 5 years
+. gen child18_died = child_died 
+{txt}
+{com}. replace child18_died=0 if age_death>=216 & age_death<.
+{txt}(21 real changes made)
+
+{com}. label values child18_died lab_died
+{txt}
+{com}. tab child18_died, miss  
+
+  {txt}child18_died {c |}      Freq.     Percent        Cum.
+{hline 15}{c +}{hline 35}
+child is alive {c |}{res}     14,969       96.71       96.71
+{txt}child has died {c |}{res}        510        3.29      100.00
+{txt}{hline 15}{c +}{hline 35}
+         Total {c |}{res}     15,479      100.00
+{txt}
+{com}.         
+. bysort ind_id: egen tot_child18_died_5y=sum(child18_died) if ydead_survey<=5
+{txt}(15383 missing values generated)
+
+{com}.         /*Total number of children under 18 who died in the past 5 years 
+>         prior to the interview date */  
+.         
+. replace tot_child18_died_5y=0 if tot_child18_died_5y==. & tot_child_died>=0 & tot_child_died<.
+{txt}(15,383 real changes made)
+
+{com}.         /*All children who are alive or who died longer than 5 years from the 
+>         interview date are replaced as '0'*/
+.         
+. replace tot_child18_died_5y=. if child18_died==1 & ydead_survey==.
+{txt}(0 real changes made)
+
+{com}.         //Replace as '.' if there is no information on when the child died  
+. 
+. tab tot_child_died tot_child18_died_5y, miss
+
+{txt}tot_child_ {c |}       tot_child18_died_5y
+      died {c |}         0          1          2 {c |}     Total
+{hline 11}{c +}{hline 33}{c +}{hline 10}
+         0 {c |}{res}    13,721          0          0 {txt}{c |}{res}    13,721 
+{txt}         1 {c |}{res}     1,318         66          0 {txt}{c |}{res}     1,384 
+{txt}         2 {c |}{res}       274          8          8 {txt}{c |}{res}       290 
+{txt}         3 {c |}{res}        64          1          0 {txt}{c |}{res}        65 
+{txt}         4 {c |}{res}        19          0          0 {txt}{c |}{res}        19 
+{txt}{hline 11}{c +}{hline 33}{c +}{hline 10}
+     Total {c |}{res}    15,396         75          8 {txt}{c |}{res}    15,479 
+{txt}
+{com}. 
+. bysort ind_id: egen childu18_died_per_wom_5y = max(tot_child18_died_5y)
+{txt}
+{com}. lab var childu18_died_per_wom_5y "Total child under 18 death for each women in the last 5 years (birth recode)"
+{txt}
+{com}.         
+. 
+.         //Keep one observation per women
+. bysort ind_id: gen id=1 if _n==1
+{txt}(8,378 missing values generated)
+
+{com}. keep if id==1
+{txt}(8,378 observations deleted)
+
+{com}. drop id
+{txt}
+{com}. duplicates report ind_id 
+
+{p 0 4}{txt}Duplicates in terms of {res} ind_id{p_end}
+
+{txt}{hline 10}{c TT}{hline 27}
+   copies {c |} observations       surplus
+{hline 10}{c +}{hline 27}
+        1 {c |}         {res}7101             0
+{txt}{hline 10}{c BT}{hline 27}
+
+{com}. 
+. 
+. gen women_BH = 1 
+{txt}
+{com}.         //Identification variable for observations in BH recode
+. 
+.         
+.         //Retain relevant variables
+. keep ind_id women_BH childu18_died_per_wom_5y 
+{txt}
+{com}. order ind_id women_BH childu18_died_per_wom_5y
+{txt}
+{com}. sort ind_id
+{txt}
+{com}. save "$path_out/VNM14_BH.dta", replace  
+{txt}file C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\results/VNM14_BH.dta saved
+
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 1.3  WM - WOMEN's RECODE  
+. *** (All eligible females 15-49 years in the household)
+. ********************************************************************************
+. 
+. usespss "$path_in/wm.sav", clear 
+{res}{text} {break}{ stata `"mata usespss_about()"':usespss} {text}is converting file {result}C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\Viet Nam 2013-14 MICS_Datasets/wm.sav{break} {break}USESPSS
+Attempting to convert: C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\Viet Nam 2013-14 MICS_Datasets/wm.sav
+Processing started: 08/06/2020 16:45:33
+Number of cases: 10190
+Signature (must be "$FL2"):$FL2
+Product line: @(#) IBM SPSS STATISTICS MS Windows 21.0.0.1                
+No file label found
+Creation date and time:21 Sep 15 16:34:41
+This is an SPSS/Windows file
+File size is 4002935 bytes
+File contains 10190 cases
+Case size is 2064 bytes in 258 chunks (1chunk = 8bytes)
+Data compression: yes (compression bias is 100)
+Weighting is not set
+
+
+Found record 7.3[8*4]: Source system characteristics
+    Release number:                     21
+    Release sub-number:                 0
+    Special release identifier number:  1
+    Machine code:                       suppressed
+    Floating-point representation code: 1 (IEEE)
+    Compression scheme code:            1
+    Byte order code:                    2 (little-endian)
+    Character representation code:      65001
+
+Found record 7.4[3*8]: Source system floating pt constants
+    skipped
+
+Found record 7.11[774*4]: Msmt level, col width, & alignment
+    processed
+
+Found record 7.13[2652*1]: Extended variable names
+    processed
+
+Found record 7.16[2*8]: 64 bit N of cases
+    skipped
+
+Found record 7.18[4680*1]: Variable attributes
+    skipped
+
+Found record 7.20[5*1]: Code page
+    Codepage: utf-8
+    processed
+
+Found record 7.24[1202*1]: Unknown record type: 24
+    skipped
+
+Busy - processing variables (258 variables)
+
+Busy - processing data (258 variables)
+Allocating buffer for decompressed data...
+2064 bytes
+Allocating buffer for variable descriptors...
+7224 bytes
+Memory set!
+Starting decompression: 16:45:33
+Optimized data record size is:306
+Allocated 1048576 bytes for the write buffer
+Write buffer capacity is 3426 records
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for value 9.998
+Can't accomodate value labels for value 9.999
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+All done: 16:45:33
+Data saved to C:\Users\oldig\AppData\Local\Temp\ST_4e44_000001.tmp
+{break}{break}{txt}{col 1}HH1{col 12}MT6{col 23}MN3{col 34}MN27B{col 45}PN21U{col 56}CP3J{col 67}MA2{col 78}HA21
+{col 1}HH2{col 12}MT7{col 23}MN4A{col 34}MN27C{col 45}PN21N{col 56}CP3L{col 67}MA3{col 78}HA22
+{col 1}LN{col 12}MT8{col 23}MN4B{col 34}MN27D{col 45}PN22A{col 56}CP3M{col 67}MA4{col 78}HA23
+{col 1}WM1{col 12}MT9{col 23}MN4C{col 34}MN27E{col 45}PN22B{col 56}CP3X{col 67}MA5{col 78}HA24
+{col 1}WM2{col 12}MT10{col 23}MN4D{col 34}MN27F{col 45}PN22F{col 56}UN2{col 67}MA6{col 78}HA25
+{col 1}WM4{col 12}MT11{col 23}MN4E{col 34}MN27G{col 45}PN22G{col 56}UN3{col 67}MA7{col 78}HA26
+{col 1}WM5{col 12}CM1{col 23}MN4F{col 34}MN27H{col 45}PN22H{col 56}UN4{col 67}MA8M{col 78}HA27
+{col 1}WM6D{col 12}CM4{col 23}MN5{col 34}MN27I{col 45}PN22X{col 56}UN6{col 67}MA8Y{col 78}HH6
+{col 1}WM6M{col 12}CM5A{col 23}MN6{col 34}MN27J{col 45}PN23{col 56}UN7U{col 67}MA9{col 78}HH7
+{col 1}WM6Y{col 12}CM5B{col 23}MN7{col 34}MN27X{col 45}IS2A{col 56}UN7N{col 67}HA1{col 78}WDOB
+{col 1}WM7{col 12}CM6{col 23}MN9{col 34}PN2U{col 45}IS2B{col 56}UN10{col 67}HA2{col 78}WDOM
+{col 1}WM8{col 12}CM7A{col 23}MN10{col 34}PN2N{col 45}IS2C{col 56}UN11A{col 67}HA3{col 78}WAGEM
+{col 1}WM9{col 12}CM7B{col 23}MN11{col 34}PN3{col 45}IS2D{col 56}UN11B{col 67}HA4{col 78}WDOBFC
+{col 1}WM10H{col 12}CM8{col 23}MN17A{col 34}PN4{col 45}IS2E{col 56}UN11C{col 67}HA5{col 78}WDOBLC
+{col 1}WM10M{col 12}CM9A{col 23}MN17B{col 34}PN5{col 45}IS2F{col 56}UN11D{col 67}HA6{col 78}MSTATUS
+{col 1}WM11H{col 12}CM9B{col 23}MN17F{col 34}PN7{col 45}IS2G{col 56}UN11E{col 67}HA7{col 78}CEB
+{col 1}WM11M{col 12}CM10{col 23}MN17G{col 34}PN8{col 45}IS2H{col 56}UN11F{col 67}HA8A{col 78}CSURV
+{col 1}WB1M{col 12}CTOT{col 23}MN17H{col 34}PN9{col 45}IS2I{col 56}UN11G{col 67}HA8B{col 78}CDEAD
+{col 1}WB1Y{col 12}CM12M{col 23}MN17X{col 34}PN10{col 45}IS2X{col 56}UN11H{col 67}HA8C{col 78}wmweight
+{col 1}WB2{col 12}CM12Y{col 23}MN17Y{col 34}PN11{col 45}IS2Y{col 56}UN11I{col 67}HA9{col 78}wscore
+{col 1}WB3{col 12}CM13{col 23}MN18{col 34}PN12U{col 45}IS2Z{col 56}UN11X{col 67}HA9A{col 78}windex5
+{col 1}WB4{col 12}DB1{col 23}MN19{col 34}PN12N{col 45}CP1{col 56}UN11Z{col 67}HA9B{col 78}wscoreu
+{col 1}WB5{col 12}DB2{col 23}MN19A{col 34}PN13A{col 45}CP2{col 56}UN13U{col 67}HA10{col 78}windex5u
+{col 1}WB7{col 12}DB3U{col 23}MN20{col 34}PN13B{col 45}CP2A{col 56}UN13N{col 67}HA11{col 78}wscorer
+{col 1}WDOI{col 12}DB3N{col 23}MN21{col 34}PN13F{col 45}CP3A{col 56}DV1A{col 67}HA12{col 78}windex5r
+{col 1}WB2C{col 12}MN1{col 23}MN22A{col 34}PN13G{col 45}CP3B{col 56}DV1B{col 67}HA15A{col 78}welevel
+{col 1}WAGE{col 12}MN2A{col 23}MN22{col 34}PN13H{col 45}CP3C{col 56}DV1C{col 67}HA15B{col 78}ethnicity
+{col 1}MT0{col 12}MN2B{col 23}MN23{col 34}PN13X{col 45}CP3D{col 56}DV1D{col 67}HA15C
+{col 1}MT1B{col 12}MN2F{col 23}MN24{col 34}PN14{col 45}CP3E{col 56}DV1E{col 67}HA15D
+{col 1}MT1C{col 12}MN2G{col 23}MN25U{col 34}PN16{col 45}CP3F{col 56}DV1F{col 67}HA16
+{col 1}MT2{col 12}MN2X{col 23}MN25N{col 34}PN18{col 45}CP3G{col 56}DV1G{col 67}HA17
+{col 1}MT3{col 12}MN2AU{col 23}MN26{col 34}PN19{col 45}CP3H{col 56}DV1H{col 67}HA18
+{col 1}MT4{col 12}MN2AN{col 23}MN27A{col 34}PN20{col 45}CP3I{col 56}MA1{col 67}HA20
+{res}{txt}
+{com}. 
+.         
+. rename _all, lower      
+{res}{txt}
+{com}. 
+.         
+. *** Generate individual unique key variable required for data merging
+. *** hh1=cluster number;  
+. *** hh2=household number; 
+. *** ln=respondent's line number
+. gen double ind_id = hh1*100000 + hh2*100 + ln
+{txt}
+{com}. format ind_id %20.0g
+{txt}
+{com}. label var ind_id "Individual ID"
+{txt}
+{com}. 
+. 
+. duplicates report ind_id
+
+{p 0 4}{txt}Duplicates in terms of {res} ind_id{p_end}
+
+{txt}{hline 10}{c TT}{hline 27}
+   copies {c |} observations       surplus
+{hline 10}{c +}{hline 27}
+        1 {c |}        {res}10190             0
+{txt}{hline 10}{c BT}{hline 27}
+
+{com}. 
+. 
+. gen women_WM =1 
+{txt}
+{com}.         //Identification variable for observations in WM recode
+. 
+.         
+. tab cm1 cm8, miss
+
+{txt}Ever given {c |}  Ever had child who later died
+     birth {c |}       Yes         No          . {c |}     Total
+{hline 11}{c +}{hline 33}{c +}{hline 10}
+       Yes {c |}{res}       454      6,647          0 {txt}{c |}{res}     7,101 
+{txt}        No {c |}{res}         0      2,726          0 {txt}{c |}{res}     2,726 
+{txt}         . {c |}{res}         0          0        363 {txt}{c |}{res}       363 
+{txt}{hline 11}{c +}{hline 33}{c +}{hline 10}
+     Total {c |}{res}       454      9,373        363 {txt}{c |}{res}    10,190 
+{txt}
+{com}.         /*Women who has never ever given birth will not have information on 
+>         child mortality*/
+.         
+.         
+. lookfor marital 
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:ma6            }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:MA6      }{bind:  }{res}{res}Marital status{p_end}
+{p 0 48}{bind:mstatus        }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:MSTATUS  }{bind:  }{res}{res}Marital/Union status{p_end}
+{txt}
+{com}. codebook mstatus ma6, tab (10)
+
+{txt}{hline}
+{res}mstatus{right:Marital/Union status}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:MSTATUS}
+
+{col 18}range:  [{res}1{txt},{res}3{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}3{col 51}{txt}missing .:  {res}363{txt}/{res}10,190
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     6,972{col 33}       1{col 43}{txt}Currently married/in union
+{col 21}{res}       507{col 33}       2{col 43}{txt}Formerly married/in union
+{col 21}{res}     2,348{col 33}       3{col 43}{txt}Never married/in union
+{col 21}{res}       363{col 33}       .{col 43}
+
+{txt}{hline}
+{res}ma6{right:Marital status}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:MA6}
+
+{col 18}range:  [{res}1{txt},{res}3{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}3{col 51}{txt}missing .:  {res}9,683{txt}/{res}10,190
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}       207{col 33}       1{col 43}{txt}Widowed
+{col 21}{res}       193{col 33}       2{col 43}{txt}Divorced
+{col 21}{res}       107{col 33}       3{col 43}{txt}Separated
+{col 21}{res}     9,683{col 33}       .{col 43}
+{txt}
+{com}. tab mstatus ma6, miss 
+
+                      {txt}{c |}               Marital status
+ Marital/Union status {c |}   Widowed   Divorced  Separated          . {c |}     Total
+{hline 22}{c +}{hline 44}{c +}{hline 10}
+Currently married/in  {c |}{res}         0          0          0      6,972 {txt}{c |}{res}     6,972 
+{txt}Formerly married/in u {c |}{res}       207        193        107          0 {txt}{c |}{res}       507 
+{txt}Never married/in unio {c |}{res}         0          0          0      2,348 {txt}{c |}{res}     2,348 
+{txt}                    . {c |}{res}         0          0          0        363 {txt}{c |}{res}       363 
+{txt}{hline 22}{c +}{hline 44}{c +}{hline 10}
+                Total {c |}{res}       207        193        107      9,683 {txt}{c |}{res}    10,190 
+{txt}
+{com}. gen marital = 1 if mstatus == 3 & ma6==.
+{txt}(7,842 missing values generated)
+
+{com}.         //1: Never married
+. replace marital = 2 if mstatus == 1 & ma6==.
+{txt}(6,972 real changes made)
+
+{com}.         //2: Currently married
+. replace marital = 3 if mstatus == 2 & ma6==1
+{txt}(207 real changes made)
+
+{com}.         //3: Widowed    
+. replace marital = 4 if mstatus == 2 & ma6==2
+{txt}(193 real changes made)
+
+{com}.         //4: Divorced   
+. replace marital = 5 if mstatus == 2 & ma6==3
+{txt}(107 real changes made)
+
+{com}.         //5: Separated/not living together      
+. label define lab_mar 1"never married" 2"currently married" 3"widowed" ///
+> 4"divorced" 5"not living together"
+{txt}
+{com}. label values marital lab_mar    
+{txt}
+{com}. label var marital "Marital status of household member"
+{txt}
+{com}. tab marital, miss
+
+  {txt}Marital status of {c |}
+   household member {c |}      Freq.     Percent        Cum.
+{hline 20}{c +}{hline 35}
+      never married {c |}{res}      2,348       23.04       23.04
+{txt}  currently married {c |}{res}      6,972       68.42       91.46
+{txt}            widowed {c |}{res}        207        2.03       93.49
+{txt}           divorced {c |}{res}        193        1.89       95.39
+{txt}not living together {c |}{res}        107        1.05       96.44
+{txt}                  . {c |}{res}        363        3.56      100.00
+{txt}{hline 20}{c +}{hline 35}
+              Total {c |}{res}     10,190      100.00
+{txt}
+{com}. tab ma6 marital, miss
+
+   {txt}Marital {c |}           Marital status of household member
+    status {c |} never mar  currently    widowed   divorced  not livin {c |}     Total
+{hline 11}{c +}{hline 55}{c +}{hline 10}
+   Widowed {c |}{res}         0          0        207          0          0 {txt}{c |}{res}       207 
+{txt}  Divorced {c |}{res}         0          0          0        193          0 {txt}{c |}{res}       193 
+{txt} Separated {c |}{res}         0          0          0          0        107 {txt}{c |}{res}       107 
+{txt}         . {c |}{res}     2,348      6,972          0          0          0 {txt}{c |}{res}     9,683 
+{txt}{hline 11}{c +}{hline 55}{c +}{hline 10}
+     Total {c |}{res}     2,348      6,972        207        193        107 {txt}{c |}{res}    10,190 
+
+
+           {txt}{c |}  Marital
+           {c |} status of
+           {c |} household
+   Marital {c |}   member
+    status {c |}         . {c |}     Total
+{hline 11}{c +}{hline 11}{c +}{hline 10}
+   Widowed {c |}{res}         0 {txt}{c |}{res}       207 
+{txt}  Divorced {c |}{res}         0 {txt}{c |}{res}       193 
+{txt} Separated {c |}{res}         0 {txt}{c |}{res}       107 
+{txt}         . {c |}{res}       363 {txt}{c |}{res}     9,683 
+{txt}{hline 11}{c +}{hline 11}{c +}{hline 10}
+     Total {c |}{res}       363 {txt}{c |}{res}    10,190 
+{txt}
+{com}. tab mstatus marital, miss
+
+                      {txt}{c |}     Marital status of household member
+ Marital/Union status {c |} never mar  currently    widowed   divorced {c |}     Total
+{hline 22}{c +}{hline 44}{c +}{hline 10}
+Currently married/in  {c |}{res}         0      6,972          0          0 {txt}{c |}{res}     6,972 
+{txt}Formerly married/in u {c |}{res}         0          0        207        193 {txt}{c |}{res}       507 
+{txt}Never married/in unio {c |}{res}     2,348          0          0          0 {txt}{c |}{res}     2,348 
+{txt}                    . {c |}{res}         0          0          0          0 {txt}{c |}{res}       363 
+{txt}{hline 22}{c +}{hline 44}{c +}{hline 10}
+                Total {c |}{res}     2,348      6,972        207        193 {txt}{c |}{res}    10,190 
+
+
+                      {txt}{c |}   Marital status of
+                      {c |}   household member
+ Marital/Union status {c |} not livin          . {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+Currently married/in  {c |}{res}         0          0 {txt}{c |}{res}     6,972 
+{txt}Formerly married/in u {c |}{res}       107          0 {txt}{c |}{res}       507 
+{txt}Never married/in unio {c |}{res}         0          0 {txt}{c |}{res}     2,348 
+{txt}                    . {c |}{res}         0        363 {txt}{c |}{res}       363 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}       107        363 {txt}{c |}{res}    10,190 
+{txt}
+{com}. rename marital marital_wom      
+{res}{txt}
+{com}.         
+. 
+.         //Retain relevant variables:    
+. keep wm7 cm1 cm8 cm9a cm9b ind_id women_WM *_wom 
+{txt}
+{com}. order wm7 cm1 cm8 cm9a cm9b ind_id women_WM *_wom 
+{txt}
+{com}. sort ind_id
+{txt}
+{com}. save "$path_out/VNM14_WM.dta", replace
+{txt}file C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\results/VNM14_WM.dta saved
+
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 1.4  MR - MEN'S RECODE  
+. ***(All eligible man in the household) 
+. ********************************************************************************
+.         
+.         /*Note: There is no male recode file for Viet Nam MICS 2014. Hence the 
+>         commands under this section have been removed */
+. 
+. 
+. ********************************************************************************
+. *** Step 1.5 HH - HOUSEHOLD RECODE 
+. ***(All households interviewed) 
+. ********************************************************************************
+. 
+. usespss "$path_in/hh.sav", clear 
+{res}{text} {break}{ stata `"mata usespss_about()"':usespss} {text}is converting file {result}C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\Viet Nam 2013-14 MICS_Datasets/hh.sav{break} {break}USESPSS
+Attempting to convert: C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\Viet Nam 2013-14 MICS_Datasets/hh.sav
+Processing started: 08/06/2020 16:45:34
+Number of cases: 10200
+Signature (must be "$FL2"):$FL2
+Product line: @(#) IBM SPSS STATISTICS MS Windows 21.0.0.1                
+No file label found
+Creation date and time:21 Sep 15 16:22:46
+This is an SPSS/Windows file
+File size is 2362588 bytes
+File contains 10200 cases
+Case size is 1176 bytes in 147 chunks (1chunk = 8bytes)
+Data compression: yes (compression bias is 100)
+Weighting is not set
+
+
+Found record 7.3[8*4]: Source system characteristics
+    Release number:                     21
+    Release sub-number:                 0
+    Special release identifier number:  1
+    Machine code:                       suppressed
+    Floating-point representation code: 1 (IEEE)
+    Compression scheme code:            1
+    Byte order code:                    2 (little-endian)
+    Character representation code:      65001
+
+Found record 7.4[3*8]: Source system floating pt constants
+    skipped
+
+Found record 7.11[441*4]: Msmt level, col width, & alignment
+    processed
+
+Found record 7.13[1532*1]: Extended variable names
+    processed
+
+Found record 7.16[2*8]: 64 bit N of cases
+    skipped
+
+Found record 7.18[2677*1]: Variable attributes
+    skipped
+
+Found record 7.20[5*1]: Code page
+    Codepage: utf-8
+    processed
+
+Found record 7.24[758*1]: Unknown record type: 24
+    skipped
+
+Busy - processing variables (147 variables)
+
+Busy - processing data (147 variables)
+Allocating buffer for decompressed data...
+1176 bytes
+Allocating buffer for variable descriptors...
+4116 bytes
+Memory set!
+Starting decompression: 16:45:34
+Optimized data record size is:191
+Allocated 1048576 bytes for the write buffer
+Write buffer capacity is 5489 records
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+Can't accomodate value labels for a string variable
+All done: 16:45:34
+Data saved to C:\Users\oldig\AppData\Local\Temp\ST_4e44_000001.tmp
+{break}{break}{txt}{col 1}HH1{col 12}HH18M{col 23}CL7E{col 34}CD3G{col 45}HC8F{col 56}HC12B{col 67}WS7C{col 78}HW5BB
+{col 1}HH2{col 12}HH19H{col 23}CL7F{col 34}CD3H{col 45}HC8G{col 56}HC12C{col 67}WS7D{col 78}HW5BC
+{col 1}HH3{col 12}HH19M{col 23}CL8{col 34}CD3I{col 45}HC8H{col 56}HC12D{col 67}WS7E{col 78}HHSEX
+{col 1}HH4{col 12}SL1{col 23}CL9{col 34}CD3J{col 45}HC8I{col 56}HC13{col 67}WS7F{col 78}ethnicity
+{col 1}HH5D{col 12}SL9A{col 23}CL10A{col 34}CD3K{col 45}HC8J{col 56}HC14A{col 67}WS7X{col 78}helevel
+{col 1}HH5M{col 12}SL9B{col 23}CL10B{col 34}CD4{col 45}HC8K{col 56}HC14B{col 67}WS7Z{col 78}hhweight
+{col 1}HH5Y{col 12}SL9C{col 23}CL10C{col 34}HC1A{col 45}HC8L{col 56}HC14C{col 67}WS8{col 78}wscore
+{col 1}HH6{col 12}CD_FLAG{col 23}CL10D{col 34}HC1C{col 45}HC8M{col 56}HC14E{col 67}WS9{col 78}windex5
+{col 1}HH7{col 12}CL2A{col 23}CL10E{col 34}HC2{col 45}HC8N{col 56}HC14F{col 67}WS10{col 78}wscoreu
+{col 1}HH9{col 12}CL2B{col 23}CL10F{col 34}HC3{col 45}HC8O{col 56}HC14G{col 67}WS11{col 78}windex5u
+{col 1}HH10{col 12}CL2C{col 23}CL10G{col 34}HC4{col 45}HC8P{col 56}HC15{col 67}HW1{col 78}wscorer
+{col 1}HH11{col 12}CL2D{col 23}CL12{col 34}HC5{col 45}HC8Q{col 56}WS1{col 67}HW2{col 78}windex5r
+{col 1}HH12{col 12}CL4{col 23}CD2{col 34}HC6{col 45}HC9B{col 56}WS2{col 67}HW3A{col 78}PSU
+{col 1}HH13{col 12}CL5{col 23}CD3A{col 34}HC7{col 45}HC9C{col 56}WS3{col 67}HW3BA{col 78}stratum
+{col 1}HH14{col 12}CL6{col 23}CD3B{col 34}HC8A{col 45}HC9D{col 56}WS4{col 67}HW3BB
+{col 1}HH15{col 12}CL7A{col 23}CD3C{col 34}HC8B{col 45}HC10{col 56}WS5{col 67}HW3BC
+{col 1}HH16{col 12}CL7B{col 23}CD3D{col 34}HC8C{col 45}HC11{col 56}WS6{col 67}HW4
+{col 1}HH17{col 12}CL7C{col 23}CD3E{col 34}HC8D{col 45}HC12{col 56}WS7A{col 67}HW5A
+{col 1}HH18H{col 12}CL7D{col 23}CD3F{col 34}HC8E{col 45}HC12A{col 56}WS7B{col 67}HW5BA
+{res}{txt}
+{com}. 
+.         
+. rename _all, lower      
+{res}{txt}
+{com}. lookfor region
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:hh7            }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:HH7      }{bind:  }{res}{res}Region{p_end}
+{txt}
+{com}. tab hh7 [aw=hhweight]
+
+                                {txt}Region {c |}      Freq.     Percent        Cum.
+{hline 39}{c +}{hline 35}
+                       Red River Delta {c |}{res} 2,467.5894       24.73       24.73
+{txt}   Northern Midlands and Mountain area {c |}{res} 1,292.2839       12.95       37.68
+{txt}North Central and Central Coastal area {c |}{res}2,245.13043       22.50       60.18
+{txt}                     Central Highlands {c |}{res} 557.660472        5.59       65.76
+{txt}                            South East {c |}{res}   1,556.99       15.60       81.37
+{txt}                    Mekong River Delta {c |}{res} 1,859.3458       18.63      100.00
+{txt}{hline 39}{c +}{hline 35}
+                                 Total {c |}{res}      9,979      100.00
+{txt}
+{com}. lookfor weight
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:hhweight       }{txt}{bind: double  }{bind:{txt}%16.6f    }{space 1}{bind:         }{bind:  }{res}{res}Household sample weight{p_end}
+{txt}
+{com}. 
+. 
+. 
+. *** Generate individual unique key variable required for data merging
+. *** hh1=cluster number;  
+. *** hh2=household number; 
+. gen     double hh_id = hh1*100 + hh2 
+{txt}
+{com}. format  hh_id %20.0g
+{txt}
+{com}. lab var hh_id "Household ID"
+{txt}
+{com}. 
+. 
+. save "$path_out/VNM14_HH.dta", replace
+{txt}file C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\results/VNM14_HH.dta saved
+
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 1.6 HL - HOUSEHOLD MEMBER  
+. ********************************************************************************
+. 
+. usespss "$path_in/hl.sav", clear 
+{res}{text} {break}{ stata `"mata usespss_about()"':usespss} {text}is converting file {result}C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\Viet Nam 2013-14 MICS_Datasets/hl.sav{break} {break}USESPSS
+Attempting to convert: C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\Viet Nam 2013-14 MICS_Datasets/hl.sav
+Processing started: 08/06/2020 16:45:34
+Number of cases: 39380
+Signature (must be "$FL2"):$FL2
+Product line: @(#) IBM SPSS STATISTICS MS Windows 21.0.0.1                
+No file label found
+Creation date and time:21 Sep 15 16:23:43
+This is an SPSS/Windows file
+File size is 3776204 bytes
+File contains 39380 cases
+Case size is 400 bytes in 50 chunks (1chunk = 8bytes)
+Data compression: yes (compression bias is 100)
+Weighting is not set
+
+
+Found record 7.3[8*4]: Source system characteristics
+    Release number:                     21
+    Release sub-number:                 0
+    Special release identifier number:  1
+    Machine code:                       suppressed
+    Floating-point representation code: 1 (IEEE)
+    Compression scheme code:            1
+    Byte order code:                    2 (little-endian)
+    Character representation code:      65001
+
+Found record 7.4[3*8]: Source system floating pt constants
+    skipped
+
+Found record 7.11[150*4]: Msmt level, col width, & alignment
+    processed
+
+Found record 7.13[550*1]: Extended variable names
+    processed
+
+Found record 7.16[2*8]: 64 bit N of cases
+    skipped
+
+Found record 7.18[925*1]: Variable attributes
+    skipped
+
+Found record 7.20[5*1]: Code page
+    Codepage: utf-8
+    processed
+
+Found record 7.24[420*1]: Unknown record type: 24
+    skipped
+
+Busy - processing variables (50 variables)
+
+Busy - processing data (50 variables)
+Allocating buffer for decompressed data...
+400 bytes
+Allocating buffer for variable descriptors...
+1400 bytes
+Memory set!
+Starting decompression: 16:45:34
+Optimized data record size is:82
+Allocated 1048576 bytes for the write buffer
+Write buffer capacity is 12787 records
+All done: 16:45:34
+Data saved to C:\Users\oldig\AppData\Local\Temp\ST_4e44_000001.tmp
+{break}{break}{txt}{col 1}HH1{col 12}HL6{col 23}HL14{col 34}ED5{col 45}MP5{col 56}HH7{col 67}schage{col 78}windex5r
+{col 1}HH2{col 12}HL7{col 23}HL14A{col 34}ED6A{col 45}MP6{col 56}MLINE{col 67}hhweight
+{col 1}HL1{col 12}HL7B{col 23}HL15{col 34}ED6B{col 45}MP7{col 56}FLINE{col 67}wscore
+{col 1}HL3{col 12}HL11{col 23}ED1{col 34}ED7{col 45}HH5D{col 56}ethnicity{col 67}windex5
+{col 1}HL4{col 12}HL12{col 23}ED3{col 34}ED8A{col 45}HH5M{col 56}helevel{col 67}wscoreu
+{col 1}HL5M{col 12}HL12A{col 23}ED4A{col 34}ED8B{col 45}HH5Y{col 56}melevel{col 67}windex5u
+{col 1}HL5Y{col 12}HL13{col 23}ED4B{col 34}MP3{col 45}HH6{col 56}felevel{col 67}wscorer
+{res}{txt}
+{com}.         
+. rename _all, lower
+{res}{txt}
+{com}. 
+. 
+. *** Generate a household unique key variable at the household level using: 
+.         ***hh1=cluster number 
+.         ***hh2=household number
+. gen double hh_id = hh1*100 + hh2 
+{txt}
+{com}. format hh_id %20.0g
+{txt}
+{com}. label var hh_id "Household ID"
+{txt}
+{com}. 
+. 
+. *** Generate individual unique key variable required for data merging using:
+.         *** hh1=cluster number; 
+.         *** hh2=household number; 
+.         *** hl1=respondent's line number.
+. gen double ind_id = hh1*100000 + hh2*100 + hl1 
+{txt}
+{com}. format ind_id %20.0g
+{txt}
+{com}. label var ind_id "Individual ID"
+{txt}
+{com}. 
+. 
+. sort ind_id
+{txt}
+{com}.         
+.         
+. ********************************************************************************
+. *** Step 1.7 DATA MERGING 
+. ******************************************************************************** 
+.  
+.  
+. *** Merging BR Recode 
+. *****************************************
+. merge 1:1 ind_id using "$path_out/VNM14_BH.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}          32,279
+{txt}{col 9}from master{col 30}{res}          32,279{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               0{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}           7,101{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. drop _merge
+{txt}
+{com}. *erase "$path_out/VNM14_BH.dta" 
+.  
+.  
+. *** Merging WM Recode 
+. *****************************************
+. merge 1:1 ind_id using "$path_out/VNM14_WM.dta"
+{res}
+{txt}{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}          29,190
+{txt}{col 9}from master{col 30}{res}          29,190{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               0{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}          10,190{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. tab hl7, miss 
+
+ {txt}Line number {c |}
+of woman age {c |}
+     15 - 49 {c |}      Freq.     Percent        Cum.
+{hline 13}{c +}{hline 35}
+Not eligible {c |}{res}     29,190       74.12       74.12
+{txt}           1 {c |}{res}      1,065        2.70       76.83
+{txt}           2 {c |}{res}      4,650       11.81       88.64
+{txt}           3 {c |}{res}      2,037        5.17       93.81
+{txt}           4 {c |}{res}      1,479        3.76       97.56
+{txt}           5 {c |}{res}        541        1.37       98.94
+{txt}           6 {c |}{res}        228        0.58       99.52
+{txt}           7 {c |}{res}        110        0.28       99.80
+{txt}           8 {c |}{res}         38        0.10       99.89
+{txt}           9 {c |}{res}         27        0.07       99.96
+{txt}          10 {c |}{res}          9        0.02       99.98
+{txt}          11 {c |}{res}          3        0.01       99.99
+{txt}          13 {c |}{res}          2        0.01      100.00
+{txt}          15 {c |}{res}          1        0.00      100.00
+{txt}{hline 13}{c +}{hline 35}
+       Total {c |}{res}     39,380      100.00
+{txt}
+{com}.         //Please make sure that hl7>0 does not include missing values. 
+.         //Otherwise add the restriction 'if hl7!=.'
+. gen temp = (hl7>0) 
+{txt}
+{com}. tab women_WM temp, miss col
+{txt}
+{c TLC}{hline 19}{c TRC}
+{c |} Key{col 21}{c |}
+{c LT}{hline 19}{c RT}
+{c |}{space 5}{it:frequency}{col 21}{c |}
+{c |}{space 1}{it:column percentage}{col 21}{c |}
+{c BLC}{hline 19}{c BRC}
+
+           {c |}         temp
+  women_WM {c |}         0          1 {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+         1 {c |}{res}         0     10,190 {txt}{c |}{res}    10,190 
+           {txt}{c |}{res}      0.00     100.00 {txt}{c |}{res}     25.88 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+         . {c |}{res}    29,190          0 {txt}{c |}{res}    29,190 
+           {txt}{c |}{res}    100.00       0.00 {txt}{c |}{res}     74.12 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}    29,190     10,190 {txt}{c |}{res}    39,380 
+           {txt}{c |}{res}    100.00     100.00 {txt}{c |}{res}    100.00 
+{txt}
+{com}. tab wm7 if temp==1 & women_WM==., miss  
+{txt}no observations
+
+{com}.         //Total of eligible women not interviewed 
+. drop temp
+{txt}
+{com}. drop _merge
+{txt}
+{com}. *erase "$path_out/VNM14_WM.dta"
+. 
+. 
+. *** Merging HH Recode 
+. *****************************************
+. merge m:1 hh_id using "$path_out/VNM14_HH.dta"
+{res}{txt}(label HH6 already defined)
+(label HH7 already defined)
+(label ethnicity already defined)
+(label helevel already defined)
+(label windex5 already defined)
+
+{col 5}Result{col 38}# of obs.
+{col 5}{hline 41}
+{col 5}not matched{col 30}{res}             221
+{txt}{col 9}from master{col 30}{res}               0{txt}  (_merge==1)
+{col 9}from using{col 30}{res}             221{txt}  (_merge==2)
+
+{col 5}matched{col 30}{res}          39,380{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. tab hh9 if _m==2
+
+                 {txt}Result of HH interview {c |}      Freq.     Percent        Cum.
+{hline 40}{c +}{hline 35}
+No household member or no competent res {c |}{res}         11        4.98        4.98
+{txt}Entire household absent for extended ti {c |}{res}        124       56.11       61.09
+{txt}                                Refused {c |}{res}          8        3.62       64.71
+{txt}Dwelling vacant / Address not a dwellin {c |}{res}         46       20.81       85.52
+{txt}                     Dwelling destroyed {c |}{res}          8        3.62       89.14
+{txt}                     Dwelling not found {c |}{res}         20        9.05       98.19
+{txt}                                  Other {c |}{res}          4        1.81      100.00
+{txt}{hline 40}{c +}{hline 35}
+                                  Total {c |}{res}        221      100.00
+{txt}
+{com}. drop  if _merge==2
+{txt}(221 observations deleted)
+
+{com}.         //Drop households that were not interviewed 
+. drop _merge
+{txt}
+{com}. *erase "$path_out/VNM14_HH.dta"
+. 
+. 
+. *** Merging MN Recode 
+. *****************************************
+. gen marital_men = .
+{txt}(39,380 missing values generated)
+
+{com}. label var marital_men "Marital status of household member"
+{txt}
+{com}. 
+. 
+. 
+. sort ind_id
+{txt}
+{com}. 
+. 
+. 
+. ********************************************************************************
+. *** Step 1.8 CONTROL VARIABLES
+. ********************************************************************************
+. 
+. /* Households are identified as having 'no eligible' members if there are no 
+> applicable population, that is, children 0-5 years, adult women 15-49 years or 
+> adult men. These households will not have information on relevant indicators of 
+> health. As such, these households are considered as non-deprived in those 
+> relevant indicators. */
+. 
+. 
+. *** No Eligible Women 15-49 years
+. *****************************************
+. gen     fem_eligible = (hl7>0) if hl7!=.
+{txt}
+{com}.         //Make sure that hl7>0 does not include hl7==. 
+. bys     hh_id: egen hh_n_fem_eligible = sum(fem_eligible)       
+{txt}
+{com}.         //Number of eligible women for interview in the hh
+. gen     no_fem_eligible = (hh_n_fem_eligible==0)                                                                        
+{txt}
+{com}.         //Takes value 1 if the household had no eligible females for an interview
+. lab var no_fem_eligible "Household has no eligible women"
+{txt}
+{com}. tab no_fem_eligible, miss
+
+  {txt}Household {c |}
+     has no {c |}
+   eligible {c |}
+      women {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}     33,847       85.95       85.95
+{txt}          1 {c |}{res}      5,533       14.05      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. *** No Eligible Men 
+. *****************************************
+.         /*NOTE: Viet Nam MICS 2014 have no male recode file. As such this variable 
+>         takes missing value */  
+. gen no_male_eligible = . 
+{txt}(39,380 missing values generated)
+
+{com}. lab var no_male_eligible "Household has no eligible man"
+{txt}
+{com}. tab no_male_eligible, miss
+
+  {txt}Household {c |}
+     has no {c |}
+   eligible {c |}
+        man {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          . {c |}{res}     39,380      100.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+.         
+. *** No Eligible Children 0-5 years
+. ***************************************** 
+.         /*NOTE: Viet Nam MICS 2014 have no child nutrition. As such this variable 
+>         takes missing value */
+. gen     no_child_eligible = .
+{txt}(39,380 missing values generated)
+
+{com}. lab var no_child_eligible "Household has no children eligible"  
+{txt}
+{com}. tab no_child_eligible, miss
+
+  {txt}Household {c |}
+     has no {c |}
+   children {c |}
+   eligible {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          . {c |}{res}     39,380      100.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}.         
+.         
+. *** No Eligible Women and Men 
+. ***********************************************
+.         /*NOTE: Viet Nam MICS 2014 have no male recode. As such this variable 
+>         takes missing value */
+. gen     no_adults_eligible = . 
+{txt}(39,380 missing values generated)
+
+{com}. lab var no_adults_eligible "Household has no eligible women or men"
+{txt}
+{com}. tab no_adults_eligible, miss  
+
+  {txt}Household {c |}
+     has no {c |}
+   eligible {c |}
+   women or {c |}
+        men {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          . {c |}{res}     39,380      100.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+.                 
+. *** No Eligible Children and Women  
+. ***********************************************
+.         /*NOTE: In the DHS datasets, we use this variable as a control 
+>         variable for the nutrition indicator if nutrition data is 
+>         present for children and women. However, in MICS, we do NOT 
+>         use this as a control variable. This is because nutrition 
+>         data is only collected from children. However, we continue to 
+>         generate this variable in this do-file so as to be consistent*/ 
+. gen     no_child_fem_eligible = .
+{txt}(39,380 missing values generated)
+
+{com}. lab var no_child_fem_eligible "Household has no children or women eligible"
+{txt}
+{com}. tab no_child_fem_eligible, miss 
+
+  {txt}Household {c |}
+     has no {c |}
+children or {c |}
+      women {c |}
+   eligible {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          . {c |}{res}     39,380      100.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. *** No Eligible Women, Men or Children 
+. ***********************************************
+.         /*NOTE: In the DHS datasets, we use this variable as a control 
+>         variable for the nutrition indicator if nutrition data is 
+>         present for children, women and men. However, in MICS, we do NOT 
+>         use this as a control variable. This is because nutrition 
+>         data is only collected from children. However, we continue to 
+>         generate this variable in this do-file so as to be consistent*/
+. gen no_eligibles = .
+{txt}(39,380 missing values generated)
+
+{com}. lab var no_eligibles "Household has no eligible women, men, or children"
+{txt}
+{com}. tab no_eligibles, miss          
+
+  {txt}Household {c |}
+     has no {c |}
+   eligible {c |}
+women, men, {c |}
+or children {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          . {c |}{res}     39,380      100.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. *** No Eligible Subsample 
+. *****************************************
+.         /*Note that the MICS surveys do not collect hemoglobin data. 
+>         As such, this variable takes missing value. However, we continue 
+>         to generate this variable in this do-file so as to be consistent*/       
+. gen     no_hem_eligible = .
+{txt}(39,380 missing values generated)
+
+{com}. lab var no_hem_eligible "Household has no eligible individuals for hemoglobin measurements"
+{txt}
+{com}. 
+. 
+. drop fem_eligible hh_n_fem_eligible 
+{txt}
+{com}. 
+. 
+. sort hh_id
+{txt}
+{com}. 
+.  
+. ********************************************************************************
+. *** Step 1.9 RENAMING DEMOGRAPHIC VARIABLES ***
+. ********************************************************************************
+. 
+. //Sample weight
+. clonevar weight = hhweight 
+{txt}
+{com}. label var weight "Sample weight"
+{txt}
+{com}. 
+. 
+. //Area: urban or rural          
+. desc hh6        
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:hh6            }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:HH6      }{bind:  }{res}{res}Area{p_end}
+{txt}
+{com}. clonevar area = hh6  
+{txt}
+{com}. replace area=0 if area==2  
+{txt}(23,170 real changes made)
+
+{com}. label define lab_area 1 "urban" 0 "rural"
+{txt}
+{com}. label values area lab_area
+{txt}
+{com}. label var area "Area: urban-rural"
+{txt}
+{com}. 
+. 
+. 
+. //Sex of household member
+. codebook hl4
+
+{txt}{hline}
+{res}hl4{right:Sex}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HL4}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    19,405{col 33}       1{col 43}{txt}Male
+{col 21}{res}    19,975{col 33}       2{col 43}{txt}Female
+
+{com}. clonevar sex = hl4 
+{txt}
+{com}. label var sex "Sex of household member"
+{txt}
+{com}. 
+. 
+. //Age of household member
+. codebook hl6, tab (100)
+
+{txt}{hline}
+{res}hl6{right:Age}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HL6}, but {res:95} nonmissing values are not labeled
+
+{col 18}range:  [{res}0{txt},{res}95{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}96{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}       732{col 33}       0{col 43}
+{col 21}       787{col 33}       1{col 43}
+{col 21}       634{col 33}       2{col 43}
+{col 21}       553{col 33}       3{col 43}
+{col 21}       640{col 33}       4{col 43}
+{col 21}       668{col 33}       5{col 43}
+{col 21}       710{col 33}       6{col 43}
+{col 21}       672{col 33}       7{col 43}
+{col 21}       683{col 33}       8{col 43}
+{col 21}       671{col 33}       9{col 43}
+{col 21}       684{col 33}      10{col 43}
+{col 21}       618{col 33}      11{col 43}
+{col 21}       604{col 33}      12{col 43}
+{col 21}       698{col 33}      13{col 43}
+{col 21}       614{col 33}      14{col 43}
+{col 21}       558{col 33}      15{col 43}
+{col 21}       654{col 33}      16{col 43}
+{col 21}       698{col 33}      17{col 43}
+{col 21}       598{col 33}      18{col 43}
+{col 21}       562{col 33}      19{col 43}
+{col 21}       583{col 33}      20{col 43}
+{col 21}       549{col 33}      21{col 43}
+{col 21}       595{col 33}      22{col 43}
+{col 21}       647{col 33}      23{col 43}
+{col 21}       586{col 33}      24{col 43}
+{col 21}       595{col 33}      25{col 43}
+{col 21}       605{col 33}      26{col 43}
+{col 21}       528{col 33}      27{col 43}
+{col 21}       618{col 33}      28{col 43}
+{col 21}       604{col 33}      29{col 43}
+{col 21}       651{col 33}      30{col 43}
+{col 21}       634{col 33}      31{col 43}
+{col 21}       575{col 33}      32{col 43}
+{col 21}       569{col 33}      33{col 43}
+{col 21}       574{col 33}      34{col 43}
+{col 21}       540{col 33}      35{col 43}
+{col 21}       574{col 33}      36{col 43}
+{col 21}       600{col 33}      37{col 43}
+{col 21}       550{col 33}      38{col 43}
+{col 21}       580{col 33}      39{col 43}
+{col 21}       552{col 33}      40{col 43}
+{col 21}       583{col 33}      41{col 43}
+{col 21}       576{col 33}      42{col 43}
+{col 21}       570{col 33}      43{col 43}
+{col 21}       579{col 33}      44{col 43}
+{col 21}       612{col 33}      45{col 43}
+{col 21}       498{col 33}      46{col 43}
+{col 21}       514{col 33}      47{col 43}
+{col 21}       542{col 33}      48{col 43}
+{col 21}       571{col 33}      49{col 43}
+{col 21}       567{col 33}      50{col 43}
+{col 21}       566{col 33}      51{col 43}
+{col 21}       449{col 33}      52{col 43}
+{col 21}       561{col 33}      53{col 43}
+{col 21}       508{col 33}      54{col 43}
+{col 21}       485{col 33}      55{col 43}
+{col 21}       441{col 33}      56{col 43}
+{col 21}       383{col 33}      57{col 43}
+{col 21}       341{col 33}      58{col 43}
+{col 21}       370{col 33}      59{col 43}
+{col 21}       298{col 33}      60{col 43}
+{col 21}       321{col 33}      61{col 43}
+{col 21}       222{col 33}      62{col 43}
+{col 21}       272{col 33}      63{col 43}
+{col 21}       237{col 33}      64{col 43}
+{col 21}       225{col 33}      65{col 43}
+{col 21}       167{col 33}      66{col 43}
+{col 21}       172{col 33}      67{col 43}
+{col 21}       132{col 33}      68{col 43}
+{col 21}       143{col 33}      69{col 43}
+{col 21}       150{col 33}      70{col 43}
+{col 21}       155{col 33}      71{col 43}
+{col 21}       123{col 33}      72{col 43}
+{col 21}       154{col 33}      73{col 43}
+{col 21}       125{col 33}      74{col 43}
+{col 21}       131{col 33}      75{col 43}
+{col 21}       125{col 33}      76{col 43}
+{col 21}       105{col 33}      77{col 43}
+{col 21}       110{col 33}      78{col 43}
+{col 21}        92{col 33}      79{col 43}
+{col 21}       110{col 33}      80{col 43}
+{col 21}       104{col 33}      81{col 43}
+{col 21}        78{col 33}      82{col 43}
+{col 21}       113{col 33}      83{col 43}
+{col 21}       105{col 33}      84{col 43}
+{col 21}        62{col 33}      85{col 43}
+{col 21}        51{col 33}      86{col 43}
+{col 21}        47{col 33}      87{col 43}
+{col 21}        32{col 33}      88{col 43}
+{col 21}        22{col 33}      89{col 43}
+{col 21}        27{col 33}      90{col 43}
+{col 21}        21{col 33}      91{col 43}
+{col 21}        23{col 33}      92{col 43}
+{col 21}        20{col 33}      93{col 43}
+{col 21}        14{col 33}      94{col 43}
+{col 21}        29{col 33}      95{col 43}{txt}95+
+
+{com}. clonevar age = hl6  
+{txt}
+{com}. replace age = . if age>=98
+{txt}(0 real changes made)
+
+{com}. label var age "Age of household member"
+{txt}
+{com}. 
+. //Age group 
+. recode age (0/4 = 1 "0-4")(5/9 = 2 "5-9")(10/14 = 3 "10-14") ///
+>                    (15/17 = 4 "15-17")(18/59 = 5 "18-59")(60/max=6 "60+"), gen(agec7)
+{txt}(38593 differences between age and agec7)
+
+{com}. lab var agec7 "age groups (7 groups)"   
+{txt}
+{com}.            
+. recode age (0/9 = 1 "0-9") (10/17 = 2 "10-17")(18/59 = 3 "18-59") ///
+>                    (60/max=4 "60+"), gen(agec4)
+{txt}(38593 differences between age and agec4)
+
+{com}. lab var agec4 "age groups (4 groups)"
+{txt}
+{com}. 
+. 
+. //Total number of hh members in the household
+. gen member = 1
+{txt}
+{com}. bysort hh_id: egen hhsize = sum(member)
+{txt}
+{com}. label var hhsize "Household size"
+{txt}
+{com}. tab hhsize, miss
+
+  {txt}Household {c |}
+       size {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}        613        1.56        1.56
+{txt}          2 {c |}{res}      2,872        7.29        8.85
+{txt}          3 {c |}{res}      5,892       14.96       23.81
+{txt}          4 {c |}{res}     11,296       28.68       52.50
+{txt}          5 {c |}{res}      7,860       19.96       72.46
+{txt}          6 {c |}{res}      5,220       13.26       85.71
+{txt}          7 {c |}{res}      2,485        6.31       92.02
+{txt}          8 {c |}{res}      1,288        3.27       95.29
+{txt}          9 {c |}{res}        765        1.94       97.23
+{txt}         10 {c |}{res}        550        1.40       98.63
+{txt}         11 {c |}{res}        231        0.59       99.22
+{txt}         12 {c |}{res}         96        0.24       99.46
+{txt}         13 {c |}{res}        104        0.26       99.73
+{txt}         14 {c |}{res}         14        0.04       99.76
+{txt}         15 {c |}{res}         30        0.08       99.84
+{txt}         16 {c |}{res}         64        0.16      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. drop member
+{txt}
+{com}. 
+. 
+. //Subnational region
+. lookfor region
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:hh7            }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:HH7      }{bind:  }{res}{res}Region{p_end}
+{txt}
+{com}. codebook hh7, tab (100)
+
+{txt}{hline}
+{res}hh7{right:Region}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HH7}
+
+{col 18}range:  [{res}1{txt},{res}6{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}6{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     6,198{col 33}       1{col 43}{txt}Red River Delta
+{col 21}{res}     6,736{col 33}       2{col 43}{txt}Northern Midlands and Mountain
+{col 43}area
+{col 21}{res}     6,134{col 33}       3{col 43}{txt}North Central and Central
+{col 43}Coastal area
+{col 21}{res}     7,179{col 33}       4{col 43}{txt}Central Highlands
+{col 21}{res}     6,748{col 33}       5{col 43}{txt}South East
+{col 21}{res}     6,385{col 33}       6{col 43}{txt}Mekong River Delta
+
+{com}. decode hh7, gen(temp)
+{txt}
+{com}. replace temp =  proper(temp)
+{txt}(12,870 real changes made)
+
+{com}. encode temp, gen(region)
+{txt}
+{com}. lab var region "Region for subnational decomposition"
+{txt}
+{com}. tab hh7 region, miss 
+
+                      {txt}{c |}    Region for subnational decomposition
+               Region {c |} Central H  Mekong Ri  North Cen  Northern  {c |}     Total
+{hline 22}{c +}{hline 44}{c +}{hline 10}
+      Red River Delta {c |}{res}         0          0          0          0 {txt}{c |}{res}     6,198 
+{txt}Northern Midlands and {c |}{res}         0          0          0      6,736 {txt}{c |}{res}     6,736 
+{txt}North Central and Cen {c |}{res}         0          0      6,134          0 {txt}{c |}{res}     6,134 
+{txt}    Central Highlands {c |}{res}     7,179          0          0          0 {txt}{c |}{res}     7,179 
+{txt}           South East {c |}{res}         0          0          0          0 {txt}{c |}{res}     6,748 
+{txt}   Mekong River Delta {c |}{res}         0      6,385          0          0 {txt}{c |}{res}     6,385 
+{txt}{hline 22}{c +}{hline 44}{c +}{hline 10}
+                Total {c |}{res}     7,179      6,385      6,134      6,736 {txt}{c |}{res}    39,380 
+
+
+                      {txt}{c |}      Region for
+                      {c |}      subnational
+                      {c |}     decomposition
+               Region {c |} Red River  South Eas {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+      Red River Delta {c |}{res}     6,198          0 {txt}{c |}{res}     6,198 
+{txt}Northern Midlands and {c |}{res}         0          0 {txt}{c |}{res}     6,736 
+{txt}North Central and Cen {c |}{res}         0          0 {txt}{c |}{res}     6,134 
+{txt}    Central Highlands {c |}{res}         0          0 {txt}{c |}{res}     7,179 
+{txt}           South East {c |}{res}         0      6,748 {txt}{c |}{res}     6,748 
+{txt}   Mekong River Delta {c |}{res}         0          0 {txt}{c |}{res}     6,385 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}     6,198      6,748 {txt}{c |}{res}    39,380 
+{txt}
+{com}. drop temp
+{txt}
+{com}. label define lab_reg ///
+> 1 "Central Highlands" ///
+> 2 "Mekong River Delta" ///
+> 3 "North Central & Central Coastal Area" ///
+> 4 "Northern Midlands & Mountain Area" ///
+> 5 "Red River Delta" ///
+> 6 "South East"
+{txt}
+{com}. label values region lab_reg
+{txt}
+{com}. 
+. 
+. ********************************************************************************
+. ***  Step 2 Data preparation  ***
+. ***  Standardization of the 10 Global MPI indicators 
+. ***  Identification of non-deprived & deprived individuals  
+. ********************************************************************************
+. 
+. 
+. ********************************************************************************
+. *** Step 2.1 Years of Schooling ***
+. ********************************************************************************
+.         /*Note: In Viet Nam, children enter primary school aged 6 years, enter lower 
+>         secondary school at 11 and upper secondary school at 15. There are grades in 
+>         primary school (Grades 1 to 5), four in lower secondary school (Grades 6 to 
+>         9) and three in upper secondary school (Grades 10 to 12).(pg 192 report)*/ 
+. 
+. tab ed4b ed4a, miss
+
+     {txt}Highest {c |}
+       grade {c |}
+completed at {c |}          Highest level of education attended
+  that level {c |} Preschool    Primary  Lower Sec  Upper Sec  Professio {c |}     Total
+{hline 13}{c +}{hline 55}{c +}{hline 10}
+           0 {c |}{res}         0        799        984        715          0 {txt}{c |}{res}     2,499 
+{txt}           1 {c |}{res}         0      1,062          0          0          0 {txt}{c |}{res}     1,062 
+{txt}           2 {c |}{res}         0      1,590          0          0          0 {txt}{c |}{res}     1,590 
+{txt}           3 {c |}{res}         0      1,848          0          0          0 {txt}{c |}{res}     1,848 
+{txt}           4 {c |}{res}         0      1,762          0          0          0 {txt}{c |}{res}     1,762 
+{txt}           5 {c |}{res}         0      2,145          0          0          0 {txt}{c |}{res}     2,145 
+{txt}           6 {c |}{res}         0          0      1,802          0          0 {txt}{c |}{res}     1,802 
+{txt}           7 {c |}{res}         0          0      2,270          0          0 {txt}{c |}{res}     2,270 
+{txt}           8 {c |}{res}         0          0      1,741          0          0 {txt}{c |}{res}     1,741 
+{txt}           9 {c |}{res}         0          0      5,350          0          0 {txt}{c |}{res}     5,350 
+{txt}          10 {c |}{res}         0          0          0      1,225          0 {txt}{c |}{res}     1,225 
+{txt}          11 {c |}{res}         0          0          0      1,008          0 {txt}{c |}{res}     1,008 
+{txt}          12 {c |}{res}         0          0          0      3,533          0 {txt}{c |}{res}     3,533 
+{txt}Inconsistent {c |}{res}         0          0          1          2          0 {txt}{c |}{res}         3 
+{txt}          DK {c |}{res}         0          2          2          4          0 {txt}{c |}{res}        16 
+{txt}     Missing {c |}{res}         0          2          1          4          0 {txt}{c |}{res}        15 
+{txt}           . {c |}{res}       734          0          0          0      1,553 {txt}{c |}{res}    11,511 
+{txt}{hline 13}{c +}{hline 55}{c +}{hline 10}
+       Total {c |}{res}       734      9,210     12,151      6,491      1,553 {txt}{c |}{res}    39,380 
+
+
+     {txt}Highest {c |}
+       grade {c |}    Highest level of education
+completed at {c |}             attended
+  that level {c |} College/U         DK          . {c |}     Total
+{hline 13}{c +}{hline 33}{c +}{hline 10}
+           0 {c |}{res}         0          1          0 {txt}{c |}{res}     2,499 
+{txt}           1 {c |}{res}         0          0          0 {txt}{c |}{res}     1,062 
+{txt}           2 {c |}{res}         0          0          0 {txt}{c |}{res}     1,590 
+{txt}           3 {c |}{res}         0          0          0 {txt}{c |}{res}     1,848 
+{txt}           4 {c |}{res}         0          0          0 {txt}{c |}{res}     1,762 
+{txt}           5 {c |}{res}         0          0          0 {txt}{c |}{res}     2,145 
+{txt}           6 {c |}{res}         0          0          0 {txt}{c |}{res}     1,802 
+{txt}           7 {c |}{res}         0          0          0 {txt}{c |}{res}     2,270 
+{txt}           8 {c |}{res}         0          0          0 {txt}{c |}{res}     1,741 
+{txt}           9 {c |}{res}         0          0          0 {txt}{c |}{res}     5,350 
+{txt}          10 {c |}{res}         0          0          0 {txt}{c |}{res}     1,225 
+{txt}          11 {c |}{res}         0          0          0 {txt}{c |}{res}     1,008 
+{txt}          12 {c |}{res}         0          0          0 {txt}{c |}{res}     3,533 
+{txt}Inconsistent {c |}{res}         0          0          0 {txt}{c |}{res}         3 
+{txt}          DK {c |}{res}         0          8          0 {txt}{c |}{res}        16 
+{txt}     Missing {c |}{res}         0          8          0 {txt}{c |}{res}        15 
+{txt}           . {c |}{res}     3,677          0      5,547 {txt}{c |}{res}    11,511 
+{txt}{hline 13}{c +}{hline 33}{c +}{hline 10}
+       Total {c |}{res}     3,677         17      5,547 {txt}{c |}{res}    39,380 
+{txt}
+{com}. tab age ed6a if ed5==1, miss  
+
+    {txt}Age of {c |}
+ household {c |}    Level of education attended current school year
+    member {c |} Preschool    Primary  Lower Sec  Upper Sec  Professio {c |}     Total
+{hline 11}{c +}{hline 55}{c +}{hline 10}
+         5 {c |}{res}       623          5          0          0          0 {txt}{c |}{res}       629 
+{txt}         6 {c |}{res}        71        624          0          0          0 {txt}{c |}{res}       695 
+{txt}         7 {c |}{res}         3        658          1          0          0 {txt}{c |}{res}       662 
+{txt}         8 {c |}{res}         1        664          0          0          0 {txt}{c |}{res}       668 
+{txt}         9 {c |}{res}         0        661          0          0          0 {txt}{c |}{res}       662 
+{txt}        10 {c |}{res}         0        664          5          0          0 {txt}{c |}{res}       670 
+{txt}        11 {c |}{res}         1        115        481          0          0 {txt}{c |}{res}       597 
+{txt}        12 {c |}{res}         0         32        550          0          0 {txt}{c |}{res}       583 
+{txt}        13 {c |}{res}         0          8        634          0          0 {txt}{c |}{res}       642 
+{txt}        14 {c |}{res}         0          8        527          4          0 {txt}{c |}{res}       539 
+{txt}        15 {c |}{res}         0          2        128        316          1 {txt}{c |}{res}       447 
+{txt}        16 {c |}{res}         0          1         24        457          1 {txt}{c |}{res}       484 
+{txt}        17 {c |}{res}         0          1          8        462          3 {txt}{c |}{res}       475 
+{txt}        18 {c |}{res}         0          0          1        102         22 {txt}{c |}{res}       258 
+{txt}        19 {c |}{res}         0          0          0         24         32 {txt}{c |}{res}       202 
+{txt}        20 {c |}{res}         0          0          1          5         42 {txt}{c |}{res}       200 
+{txt}        21 {c |}{res}         0          0          0          3         15 {txt}{c |}{res}       152 
+{txt}        22 {c |}{res}         0          0          0          1          7 {txt}{c |}{res}       110 
+{txt}        23 {c |}{res}         0          0          0          0         14 {txt}{c |}{res}        72 
+{txt}        24 {c |}{res}         0          0          0          0          4 {txt}{c |}{res}        31 
+{txt}{hline 11}{c +}{hline 55}{c +}{hline 10}
+     Total {c |}{res}       699      3,443      2,360      1,374        141 {txt}{c |}{res}     8,778 
+
+
+           {txt}{c |}  Level of education
+    Age of {c |}   attended current
+ household {c |}      school year
+    member {c |} College/U    Missing {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+         5 {c |}{res}         0          1 {txt}{c |}{res}       629 
+{txt}         6 {c |}{res}         0          0 {txt}{c |}{res}       695 
+{txt}         7 {c |}{res}         0          0 {txt}{c |}{res}       662 
+{txt}         8 {c |}{res}         0          3 {txt}{c |}{res}       668 
+{txt}         9 {c |}{res}         0          1 {txt}{c |}{res}       662 
+{txt}        10 {c |}{res}         0          1 {txt}{c |}{res}       670 
+{txt}        11 {c |}{res}         0          0 {txt}{c |}{res}       597 
+{txt}        12 {c |}{res}         0          1 {txt}{c |}{res}       583 
+{txt}        13 {c |}{res}         0          0 {txt}{c |}{res}       642 
+{txt}        14 {c |}{res}         0          0 {txt}{c |}{res}       539 
+{txt}        15 {c |}{res}         0          0 {txt}{c |}{res}       447 
+{txt}        16 {c |}{res}         0          1 {txt}{c |}{res}       484 
+{txt}        17 {c |}{res}         1          0 {txt}{c |}{res}       475 
+{txt}        18 {c |}{res}       133          0 {txt}{c |}{res}       258 
+{txt}        19 {c |}{res}       145          1 {txt}{c |}{res}       202 
+{txt}        20 {c |}{res}       152          0 {txt}{c |}{res}       200 
+{txt}        21 {c |}{res}       134          0 {txt}{c |}{res}       152 
+{txt}        22 {c |}{res}       102          0 {txt}{c |}{res}       110 
+{txt}        23 {c |}{res}        58          0 {txt}{c |}{res}        72 
+{txt}        24 {c |}{res}        26          1 {txt}{c |}{res}        31 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}       751         10 {txt}{c |}{res}     8,778 
+{txt}
+{com}. clonevar edulevel = ed4a 
+{txt}(5,547 missing values generated)
+
+{com}. replace edulevel = . if ed4a>=8 
+{txt}(17 real changes made, 17 to missing)
+
+{com}. tab ed4a ed3, miss   
+
+                      {txt}{c |}     Ever attended school or
+     Highest level of {c |}            pre-school
+   education attended {c |}       Yes         No          . {c |}     Total
+{hline 22}{c +}{hline 33}{c +}{hline 10}
+            Preschool {c |}{res}       734          0          0 {txt}{c |}{res}       734 
+{txt}              Primary {c |}{res}     9,210          0          0 {txt}{c |}{res}     9,210 
+{txt}      Lower Secondary {c |}{res}    12,151          0          0 {txt}{c |}{res}    12,151 
+{txt}      Upper Secondary {c |}{res}     6,491          0          0 {txt}{c |}{res}     6,491 
+{txt}  Professional School {c |}{res}     1,553          0          0 {txt}{c |}{res}     1,553 
+{txt}College/University &  {c |}{res}     3,677          0          0 {txt}{c |}{res}     3,677 
+{txt}                   DK {c |}{res}        17          0          0 {txt}{c |}{res}        17 
+{txt}                    . {c |}{res}         0      2,201      3,346 {txt}{c |}{res}     5,547 
+{txt}{hline 22}{c +}{hline 33}{c +}{hline 10}
+                Total {c |}{res}    33,833      2,201      3,346 {txt}{c |}{res}    39,380 
+{txt}
+{com}.         //All missing values for attending school are also missing in edulevel 
+. replace edulevel = 0 if ed3==2 | ed3 == . 
+{txt}(5,547 real changes made)
+
+{com}.         //Never attended school
+. clonevar eduhighyear = ed4b 
+{txt}(11,511 missing values generated)
+
+{com}.         //Highest grade of education completed
+. replace eduhighyear = .  if ed4b==. | ed4b==97 | ed4b==98 | ed4b==99   
+{txt}(34 real changes made, 34 to missing)
+
+{com}.         //These are all missing values, (97 inconsistent, 98 DK, 99 missing)  
+. tab ed4b ed3, miss   
+
+     {txt}Highest {c |}
+       grade {c |}     Ever attended school or
+completed at {c |}            pre-school
+  that level {c |}       Yes         No          . {c |}     Total
+{hline 13}{c +}{hline 33}{c +}{hline 10}
+           0 {c |}{res}     2,499          0          0 {txt}{c |}{res}     2,499 
+{txt}           1 {c |}{res}     1,062          0          0 {txt}{c |}{res}     1,062 
+{txt}           2 {c |}{res}     1,590          0          0 {txt}{c |}{res}     1,590 
+{txt}           3 {c |}{res}     1,848          0          0 {txt}{c |}{res}     1,848 
+{txt}           4 {c |}{res}     1,762          0          0 {txt}{c |}{res}     1,762 
+{txt}           5 {c |}{res}     2,145          0          0 {txt}{c |}{res}     2,145 
+{txt}           6 {c |}{res}     1,802          0          0 {txt}{c |}{res}     1,802 
+{txt}           7 {c |}{res}     2,270          0          0 {txt}{c |}{res}     2,270 
+{txt}           8 {c |}{res}     1,741          0          0 {txt}{c |}{res}     1,741 
+{txt}           9 {c |}{res}     5,350          0          0 {txt}{c |}{res}     5,350 
+{txt}          10 {c |}{res}     1,225          0          0 {txt}{c |}{res}     1,225 
+{txt}          11 {c |}{res}     1,008          0          0 {txt}{c |}{res}     1,008 
+{txt}          12 {c |}{res}     3,533          0          0 {txt}{c |}{res}     3,533 
+{txt}Inconsistent {c |}{res}         3          0          0 {txt}{c |}{res}         3 
+{txt}          DK {c |}{res}        16          0          0 {txt}{c |}{res}        16 
+{txt}     Missing {c |}{res}        15          0          0 {txt}{c |}{res}        15 
+{txt}           . {c |}{res}     5,964      2,201      3,346 {txt}{c |}{res}    11,511 
+{txt}{hline 13}{c +}{hline 33}{c +}{hline 10}
+       Total {c |}{res}    33,833      2,201      3,346 {txt}{c |}{res}    39,380 
+{txt}
+{com}.         //All missing values for attending school are also missing in eduhighyear . 
+. replace eduhighyear = 0  if ed3==2 | ed3 == .   
+{txt}(5,547 real changes made)
+
+{com}.         //Never attended school
+. lab var eduhighyear "Highest year of education completed"
+{txt}
+{com}. tab eduhighyear, miss
+
+{txt}Highest year {c |}
+of education {c |}
+   completed {c |}      Freq.     Percent        Cum.
+{hline 13}{c +}{hline 35}
+           0 {c |}{res}      8,046       20.43       20.43
+{txt}           1 {c |}{res}      1,062        2.70       23.13
+{txt}           2 {c |}{res}      1,590        4.04       27.17
+{txt}           3 {c |}{res}      1,848        4.69       31.86
+{txt}           4 {c |}{res}      1,762        4.47       36.33
+{txt}           5 {c |}{res}      2,145        5.45       41.78
+{txt}           6 {c |}{res}      1,802        4.58       46.36
+{txt}           7 {c |}{res}      2,270        5.76       52.12
+{txt}           8 {c |}{res}      1,741        4.42       56.54
+{txt}           9 {c |}{res}      5,350       13.59       70.13
+{txt}          10 {c |}{res}      1,225        3.11       73.24
+{txt}          11 {c |}{res}      1,008        2.56       75.80
+{txt}          12 {c |}{res}      3,533        8.97       84.77
+{txt}           . {c |}{res}      5,998       15.23      100.00
+{txt}{hline 13}{c +}{hline 35}
+       Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. ** Cleaning inconsistencies
+. replace eduhighyear = 0 if age<10   
+{txt}(2,615 real changes made)
+
+{com}.         //2615 real changes made
+. replace eduhighyear = . if edulevel==1 & eduhighyear>5 
+{txt}(0 real changes made)
+
+{com}.         //According to the report (page 192) Primary school is until 5th grade 
+. replace eduhighyear = . if (edulevel==2)  & eduhighyear>9   
+{txt}(0 real changes made)
+
+{com}.         //Lower secondary education covers 9grades of education 
+. replace eduhighyear = . if (edulevel==3)  & eduhighyear>12   
+{txt}(0 real changes made)
+
+{com}.         //Upper secondary education covers 12grades of education 
+. replace eduhighyear = 0 if edulevel==0
+{txt}(25 real changes made)
+
+{com}. 
+. 
+. ** Now we create the years of schooling
+.         //The VNM report does inform on school attainment in terms of years
+. gen     eduyears = eduhighyear
+{txt}(5,262 missing values generated)
+
+{com}. replace eduyears = 0 if edulevel==1 & eduhighyear==.  
+{txt}(2 real changes made)
+
+{com}.         //Assuming 0 year if they only attend primary but the last year is unknown 
+. replace eduyears = 5 if (edulevel == 2) & (eduhighyear ==.| eduhighyear ==0) 
+{txt}(988 real changes made)
+
+{com}.         //5 for primary education 
+. replace eduyears = 9 if (edulevel==3) & (eduhighyear ==.| eduhighyear ==0) 
+{txt}(725 real changes made)
+
+{com}. replace eduyears = 12 if (edulevel==4) & (eduhighyear ==.| eduhighyear ==0) 
+{txt}(1,553 real changes made)
+
+{com}. replace eduyears = 12 if (edulevel==4) & (eduhighyear ==.| eduhighyear ==0) 
+{txt}(0 real changes made)
+
+{com}. replace eduyears = 13 if (edulevel==4 | edulevel==5) & (eduhighyear ==.| eduhighyear ==0) 
+{txt}(5,230 real changes made)
+
+{com}. 
+. replace eduyears = 0 if edulevel == 0     
+{txt}(0 real changes made)
+
+{com}. replace eduyears = . if edulevel==. 
+{txt}(1 real change made, 1 to missing)
+
+{com}. 
+. 
+. ** Checking for further inconsistencies
+.         /*There are some cases in which the years of schooling are greater than the 
+>         age of the individual, which is clearly a mistake in the data. There might 
+>         also be individuals that show too much schooling given their age (e.g. a 7 
+>         year-old with 5 years of schooling). Please check whether this is the case 
+>         in your country and correct when necessary */
+. replace eduyears = . if age<=eduyears & age>0
+{txt}(0 real changes made)
+
+{com}. replace eduyears = 0 if age<10  
+{txt}(1 real change made)
+
+{com}. lab var eduyears "Total number of years of education accomplished"
+{txt}
+{com}. 
+.         //Tabulate the original values to check the final variable
+. tab eduyears edulevel, miss
+
+     {txt}Total {c |}
+ number of {c |}
+  years of {c |}
+ education {c |}
+accomplish {c |}          Highest level of education attended
+        ed {c |} Preschool    Primary  Lower Sec  Upper Sec  Professio {c |}     Total
+{hline 11}{c +}{hline 55}{c +}{hline 10}
+         0 {c |}{res}     6,281      2,707          1          0          0 {txt}{c |}{res}     8,989 
+{txt}         1 {c |}{res}         0        356          0          0          0 {txt}{c |}{res}       356 
+{txt}         2 {c |}{res}         0        951          0          0          0 {txt}{c |}{res}       951 
+{txt}         3 {c |}{res}         0      1,298          0          0          0 {txt}{c |}{res}     1,298 
+{txt}         4 {c |}{res}         0      1,753          0          0          0 {txt}{c |}{res}     1,753 
+{txt}         5 {c |}{res}         0      2,145        987          0          0 {txt}{c |}{res}     3,132 
+{txt}         6 {c |}{res}         0          0      1,802          0          0 {txt}{c |}{res}     1,802 
+{txt}         7 {c |}{res}         0          0      2,270          0          0 {txt}{c |}{res}     2,270 
+{txt}         8 {c |}{res}         0          0      1,741          0          0 {txt}{c |}{res}     1,741 
+{txt}         9 {c |}{res}         0          0      5,350        725          0 {txt}{c |}{res}     6,075 
+{txt}        10 {c |}{res}         0          0          0      1,225          0 {txt}{c |}{res}     1,225 
+{txt}        11 {c |}{res}         0          0          0      1,008          0 {txt}{c |}{res}     1,008 
+{txt}        12 {c |}{res}         0          0          0      3,533          0 {txt}{c |}{res}     3,533 
+{txt}        13 {c |}{res}         0          0          0          0      1,553 {txt}{c |}{res}     5,230 
+{txt}         . {c |}{res}         0          0          0          0          0 {txt}{c |}{res}        17 
+{txt}{hline 11}{c +}{hline 55}{c +}{hline 10}
+     Total {c |}{res}     6,281      9,210     12,151      6,491      1,553 {txt}{c |}{res}    39,380 
+
+
+     {txt}Total {c |}
+ number of {c |}
+  years of {c |}
+ education {c |}   Highest level of
+accomplish {c |}  education attended
+        ed {c |} College/U          . {c |}     Total
+{hline 11}{c +}{hline 22}{c +}{hline 10}
+         0 {c |}{res}         0          0 {txt}{c |}{res}     8,989 
+{txt}         1 {c |}{res}         0          0 {txt}{c |}{res}       356 
+{txt}         2 {c |}{res}         0          0 {txt}{c |}{res}       951 
+{txt}         3 {c |}{res}         0          0 {txt}{c |}{res}     1,298 
+{txt}         4 {c |}{res}         0          0 {txt}{c |}{res}     1,753 
+{txt}         5 {c |}{res}         0          0 {txt}{c |}{res}     3,132 
+{txt}         6 {c |}{res}         0          0 {txt}{c |}{res}     1,802 
+{txt}         7 {c |}{res}         0          0 {txt}{c |}{res}     2,270 
+{txt}         8 {c |}{res}         0          0 {txt}{c |}{res}     1,741 
+{txt}         9 {c |}{res}         0          0 {txt}{c |}{res}     6,075 
+{txt}        10 {c |}{res}         0          0 {txt}{c |}{res}     1,225 
+{txt}        11 {c |}{res}         0          0 {txt}{c |}{res}     1,008 
+{txt}        12 {c |}{res}         0          0 {txt}{c |}{res}     3,533 
+{txt}        13 {c |}{res}     3,677          0 {txt}{c |}{res}     5,230 
+{txt}         . {c |}{res}         0         17 {txt}{c |}{res}        17 
+{txt}{hline 11}{c +}{hline 22}{c +}{hline 10}
+     Total {c |}{res}     3,677         17 {txt}{c |}{res}    39,380 
+{txt}
+{com}. tab ed4b age if eduyears==0 & edulevel>=2, miss  
+
+     {txt}Highest {c |}   Age of
+       grade {c |} household
+completed at {c |}   member
+  that level {c |}         7 {c |}     Total
+{hline 13}{c +}{hline 11}{c +}{hline 10}
+           0 {c |}{res}         1 {txt}{c |}{res}         1 
+{txt}{hline 13}{c +}{hline 11}{c +}{hline 10}
+       Total {c |}{res}         1 {txt}{c |}{res}         1 
+{txt}
+{com}. 
+. 
+. 
+.         /*A control variable is created on whether there is information on 
+>         years of education for at least 2/3 of the household members aged 10 years 
+>         and older */    
+. gen temp = 1 if eduyears!=. & age>=10 & age!=.
+{txt}(6,767 missing values generated)
+
+{com}. bysort  hh_id: egen no_missing_edu = sum(temp)
+{txt}
+{com}.         /*Total household members who are 10 years and older with no missing 
+>         years of education */
+. gen temp2 = 1 if age>=10 & age!=.
+{txt}(6,750 missing values generated)
+
+{com}. bysort hh_id: egen hhs = sum(temp2)
+{txt}
+{com}.         /*Total number of household members who are 10 years and older */
+. replace no_missing_edu = no_missing_edu/hhs
+{txt}(38,586 real changes made)
+
+{com}. replace no_missing_edu = (no_missing_edu>=2/3)
+{txt}(75 real changes made)
+
+{com}.         /*Identify whether there is information on years of education for at 
+>         least 2/3 of the household members aged 10 years and older */
+. tab no_missing_edu, miss
+
+{txt}no_missing_ {c |}
+        edu {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}          8        0.02        0.02
+{txt}          1 {c |}{res}     39,372       99.98      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}.         //Values for 0 are less than 1%
+. label var no_missing_edu "No missing edu for at least 2/3 of the HH members aged 10 years & older"      
+{txt}
+{com}. drop temp temp2 hhs
+{txt}
+{com}. 
+. 
+. *** Standard MPI ***
+. /*The entire household is considered deprived if no household member 
+> aged 10 years or older has completed SIX years of schooling.*/
+. ******************************************************************* 
+. gen      years_edu6 = (eduyears>=6)
+{txt}
+{com}. replace years_edu6 = . if eduyears==.
+{txt}(17 real changes made, 17 to missing)
+
+{com}. bysort hh_id: egen hh_years_edu6_1 = max(years_edu6)
+{txt}
+{com}. gen     hh_years_edu6 = (hh_years_edu6_1==1)
+{txt}
+{com}. replace hh_years_edu6 = . if hh_years_edu6_1==.
+{txt}(0 real changes made)
+
+{com}. replace hh_years_edu6 = . if hh_years_edu6==0 & no_missing_edu==0 
+{txt}(0 real changes made)
+
+{com}.         //Final variable missing if household has info for < 2/3 of members 
+. lab var hh_years_edu6 "Household has at least one member with 6 years of edu"
+{txt}
+{com}. tab hh_years_edu6, miss
+
+  {txt}Household {c |}
+     has at {c |}
+  least one {c |}
+member with {c |}
+ 6 years of {c |}
+        edu {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      3,439        8.73        8.73
+{txt}          1 {c |}{res}     35,941       91.27      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 2.2 Child School Attendance ***
+. ********************************************************************************
+. 
+. codebook ed5, tab (10)
+
+{txt}{hline}
+{res}ed5{right:Attended school during current school year (2013-2014)}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:ED5}
+
+{col 18}range:  [{res}1{txt},{res}9{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}3{col 51}{txt}missing .:  {res}27,012{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     8,778{col 33}       1{col 43}{txt}Yes
+{col 21}{res}     3,534{col 33}       2{col 43}{txt}No
+{col 21}{res}        56{col 33}       9{col 43}{txt}Missing
+{col 21}{res}    27,012{col 33}       .{col 43}
+{txt}
+{com}. gen     attendance = .
+{txt}(39,380 missing values generated)
+
+{com}. replace attendance = 1 if ed5==1 
+{txt}(8,778 real changes made)
+
+{com}.         //Replace attendance with '1' if currently attending school
+. replace attendance = 0 if ed5==2 
+{txt}(3,534 real changes made)
+
+{com}.         //Replace attendance with '0' if currently not attending school
+. replace attendance = 0 if ed3==2 
+{txt}(2,201 real changes made)
+
+{com}.         //Replace attendance with '0' if never ever attended school     
+. 
+. tab age ed5, miss       
+
+    {txt}Age of {c |} Attended school during current school year
+ household {c |}                 (2013-2014)
+    member {c |}       Yes         No    Missing          . {c |}     Total
+{hline 11}{c +}{hline 44}{c +}{hline 10}
+         0 {c |}{res}         0          0          0        732 {txt}{c |}{res}       732 
+{txt}         1 {c |}{res}         0          0          0        787 {txt}{c |}{res}       787 
+{txt}         2 {c |}{res}         0          0          0        634 {txt}{c |}{res}       634 
+{txt}         3 {c |}{res}         0          0          0        553 {txt}{c |}{res}       553 
+{txt}         4 {c |}{res}         0          0          0        640 {txt}{c |}{res}       640 
+{txt}         5 {c |}{res}       629          4          1         34 {txt}{c |}{res}       668 
+{txt}         6 {c |}{res}       695          3          0         12 {txt}{c |}{res}       710 
+{txt}         7 {c |}{res}       662          1          0          9 {txt}{c |}{res}       672 
+{txt}         8 {c |}{res}       668          6          0          9 {txt}{c |}{res}       683 
+{txt}         9 {c |}{res}       662          3          0          6 {txt}{c |}{res}       671 
+{txt}        10 {c |}{res}       670          5          0          9 {txt}{c |}{res}       684 
+{txt}        11 {c |}{res}       597         12          0          9 {txt}{c |}{res}       618 
+{txt}        12 {c |}{res}       583         14          0          7 {txt}{c |}{res}       604 
+{txt}        13 {c |}{res}       642         45          0         11 {txt}{c |}{res}       698 
+{txt}        14 {c |}{res}       539         61          0         14 {txt}{c |}{res}       614 
+{txt}        15 {c |}{res}       447        103          1          7 {txt}{c |}{res}       558 
+{txt}        16 {c |}{res}       484        159          0         11 {txt}{c |}{res}       654 
+{txt}        17 {c |}{res}       475        202          3         18 {txt}{c |}{res}       698 
+{txt}        18 {c |}{res}       258        327          4          9 {txt}{c |}{res}       598 
+{txt}        19 {c |}{res}       202        339          3         18 {txt}{c |}{res}       562 
+{txt}        20 {c |}{res}       200        363          2         18 {txt}{c |}{res}       583 
+{txt}        21 {c |}{res}       152        369          7         21 {txt}{c |}{res}       549 
+{txt}        22 {c |}{res}       110        460          5         20 {txt}{c |}{res}       595 
+{txt}        23 {c |}{res}        72        540         13         22 {txt}{c |}{res}       647 
+{txt}        24 {c |}{res}        31        518         17         20 {txt}{c |}{res}       586 
+{txt}        25 {c |}{res}         0          0          0        595 {txt}{c |}{res}       595 
+{txt}        26 {c |}{res}         0          0          0        605 {txt}{c |}{res}       605 
+{txt}        27 {c |}{res}         0          0          0        528 {txt}{c |}{res}       528 
+{txt}        28 {c |}{res}         0          0          0        618 {txt}{c |}{res}       618 
+{txt}        29 {c |}{res}         0          0          0        604 {txt}{c |}{res}       604 
+{txt}        30 {c |}{res}         0          0          0        651 {txt}{c |}{res}       651 
+{txt}        31 {c |}{res}         0          0          0        634 {txt}{c |}{res}       634 
+{txt}        32 {c |}{res}         0          0          0        575 {txt}{c |}{res}       575 
+{txt}        33 {c |}{res}         0          0          0        569 {txt}{c |}{res}       569 
+{txt}        34 {c |}{res}         0          0          0        574 {txt}{c |}{res}       574 
+{txt}        35 {c |}{res}         0          0          0        540 {txt}{c |}{res}       540 
+{txt}        36 {c |}{res}         0          0          0        574 {txt}{c |}{res}       574 
+{txt}        37 {c |}{res}         0          0          0        600 {txt}{c |}{res}       600 
+{txt}        38 {c |}{res}         0          0          0        550 {txt}{c |}{res}       550 
+{txt}        39 {c |}{res}         0          0          0        580 {txt}{c |}{res}       580 
+{txt}        40 {c |}{res}         0          0          0        552 {txt}{c |}{res}       552 
+{txt}        41 {c |}{res}         0          0          0        583 {txt}{c |}{res}       583 
+{txt}        42 {c |}{res}         0          0          0        576 {txt}{c |}{res}       576 
+{txt}        43 {c |}{res}         0          0          0        570 {txt}{c |}{res}       570 
+{txt}        44 {c |}{res}         0          0          0        579 {txt}{c |}{res}       579 
+{txt}        45 {c |}{res}         0          0          0        612 {txt}{c |}{res}       612 
+{txt}        46 {c |}{res}         0          0          0        498 {txt}{c |}{res}       498 
+{txt}        47 {c |}{res}         0          0          0        514 {txt}{c |}{res}       514 
+{txt}        48 {c |}{res}         0          0          0        542 {txt}{c |}{res}       542 
+{txt}        49 {c |}{res}         0          0          0        571 {txt}{c |}{res}       571 
+{txt}        50 {c |}{res}         0          0          0        567 {txt}{c |}{res}       567 
+{txt}        51 {c |}{res}         0          0          0        566 {txt}{c |}{res}       566 
+{txt}        52 {c |}{res}         0          0          0        449 {txt}{c |}{res}       449 
+{txt}        53 {c |}{res}         0          0          0        561 {txt}{c |}{res}       561 
+{txt}        54 {c |}{res}         0          0          0        508 {txt}{c |}{res}       508 
+{txt}        55 {c |}{res}         0          0          0        485 {txt}{c |}{res}       485 
+{txt}        56 {c |}{res}         0          0          0        441 {txt}{c |}{res}       441 
+{txt}        57 {c |}{res}         0          0          0        383 {txt}{c |}{res}       383 
+{txt}        58 {c |}{res}         0          0          0        341 {txt}{c |}{res}       341 
+{txt}        59 {c |}{res}         0          0          0        370 {txt}{c |}{res}       370 
+{txt}        60 {c |}{res}         0          0          0        298 {txt}{c |}{res}       298 
+{txt}        61 {c |}{res}         0          0          0        321 {txt}{c |}{res}       321 
+{txt}        62 {c |}{res}         0          0          0        222 {txt}{c |}{res}       222 
+{txt}        63 {c |}{res}         0          0          0        272 {txt}{c |}{res}       272 
+{txt}        64 {c |}{res}         0          0          0        237 {txt}{c |}{res}       237 
+{txt}        65 {c |}{res}         0          0          0        225 {txt}{c |}{res}       225 
+{txt}        66 {c |}{res}         0          0          0        167 {txt}{c |}{res}       167 
+{txt}        67 {c |}{res}         0          0          0        172 {txt}{c |}{res}       172 
+{txt}        68 {c |}{res}         0          0          0        132 {txt}{c |}{res}       132 
+{txt}        69 {c |}{res}         0          0          0        143 {txt}{c |}{res}       143 
+{txt}        70 {c |}{res}         0          0          0        150 {txt}{c |}{res}       150 
+{txt}        71 {c |}{res}         0          0          0        155 {txt}{c |}{res}       155 
+{txt}        72 {c |}{res}         0          0          0        123 {txt}{c |}{res}       123 
+{txt}        73 {c |}{res}         0          0          0        154 {txt}{c |}{res}       154 
+{txt}        74 {c |}{res}         0          0          0        125 {txt}{c |}{res}       125 
+{txt}        75 {c |}{res}         0          0          0        131 {txt}{c |}{res}       131 
+{txt}        76 {c |}{res}         0          0          0        125 {txt}{c |}{res}       125 
+{txt}        77 {c |}{res}         0          0          0        105 {txt}{c |}{res}       105 
+{txt}        78 {c |}{res}         0          0          0        110 {txt}{c |}{res}       110 
+{txt}        79 {c |}{res}         0          0          0         92 {txt}{c |}{res}        92 
+{txt}        80 {c |}{res}         0          0          0        110 {txt}{c |}{res}       110 
+{txt}        81 {c |}{res}         0          0          0        104 {txt}{c |}{res}       104 
+{txt}        82 {c |}{res}         0          0          0         78 {txt}{c |}{res}        78 
+{txt}        83 {c |}{res}         0          0          0        113 {txt}{c |}{res}       113 
+{txt}        84 {c |}{res}         0          0          0        105 {txt}{c |}{res}       105 
+{txt}        85 {c |}{res}         0          0          0         62 {txt}{c |}{res}        62 
+{txt}        86 {c |}{res}         0          0          0         51 {txt}{c |}{res}        51 
+{txt}        87 {c |}{res}         0          0          0         47 {txt}{c |}{res}        47 
+{txt}        88 {c |}{res}         0          0          0         32 {txt}{c |}{res}        32 
+{txt}        89 {c |}{res}         0          0          0         22 {txt}{c |}{res}        22 
+{txt}        90 {c |}{res}         0          0          0         27 {txt}{c |}{res}        27 
+{txt}        91 {c |}{res}         0          0          0         21 {txt}{c |}{res}        21 
+{txt}        92 {c |}{res}         0          0          0         23 {txt}{c |}{res}        23 
+{txt}        93 {c |}{res}         0          0          0         20 {txt}{c |}{res}        20 
+{txt}        94 {c |}{res}         0          0          0         14 {txt}{c |}{res}        14 
+{txt}       95+ {c |}{res}         0          0          0         29 {txt}{c |}{res}        29 
+{txt}{hline 11}{c +}{hline 44}{c +}{hline 10}
+     Total {c |}{res}     8,778      3,534         56     27,012 {txt}{c |}{res}    39,380 
+{txt}
+{com}.         //Check individuals who are not of school age
+.         
+. replace attendance = 0 if age<5 | age>24 
+{txt}(24,811 real changes made)
+
+{com}.         //Replace attendance with '0' for individuals who are not of school age 
+. 
+. tab attendance, miss
+
+ {txt}attendance {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}     30,546       77.57       77.57
+{txt}          1 {c |}{res}      8,778       22.29       99.86
+{txt}          . {c |}{res}         56        0.14      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. *** Standard MPI ***
+. /*The entire household is considered deprived if any school-aged 
+> child is not attending school up to class 8. */ 
+. ******************************************************************* 
+. gen     child_schoolage = (age>=6 & age<=14)
+{txt}
+{com}.         /*Note: In Vietnam, the official school entrance age for primary school is 
+>         6 years in 2014. So, age range is 6-14 (=6+8)
+>         Source: "http://data.uis.unesco.org/?ReportId=163"
+>         Go to Education>Education>System>Official entrance age to primary education. 
+>         Look at the starting age and add 8. 
+>         */
+. 
+.         
+.         /*A control variable is created on whether there is no information on 
+>         school attendance for at least 2/3 of the school age children */
+. count if child_schoolage==1 & attendance==.
+  {res}0
+{txt}
+{com}.         //Understand how many eligible school aged children are not attending school    
+. gen temp = 1 if child_schoolage==1 & attendance!=.
+{txt}(33,426 missing values generated)
+
+{com}. bysort hh_id: egen no_missing_atten = sum(temp) 
+{txt}
+{com}.         /*Total school age children with no missing information on school 
+>         attendance */
+. gen temp2 = 1 if child_schoolage==1     
+{txt}(33,426 missing values generated)
+
+{com}. bysort hh_id: egen hhs = sum(temp2)
+{txt}
+{com}.         //Total number of household members who are of school age
+. replace no_missing_atten = no_missing_atten/hhs 
+{txt}(26,633 real changes made, 19,113 to missing)
+
+{com}. replace no_missing_atten = (no_missing_atten>=2/3)
+{txt}(19,113 real changes made)
+
+{com}.         /*Identify whether there is missing information on school attendance for 
+>         more than 2/3 of the school age children */             
+. tab no_missing_atten, miss
+
+{txt}no_missing_ {c |}
+      atten {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          1 {c |}{res}     39,380      100.00      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}.         //Values for 0 are less than 1%
+. label var no_missing_atten "No missing school attendance for at least 2/3 of the school aged children"          
+{txt}
+{com}. drop temp temp2 hhs
+{txt}
+{com}.         
+.         
+. bysort  hh_id: egen hh_children_schoolage = sum(child_schoolage)
+{txt}
+{com}. replace hh_children_schoolage = (hh_children_schoolage>0) 
+{txt}(7,520 real changes made)
+
+{com}.         //Control variable: 
+.         //It takes value 1 if the household has children in school age
+. lab var hh_children_schoolage "Household has children in school age"
+{txt}
+{com}. 
+. 
+. gen     child_not_atten = (attendance==0) if child_schoolage==1
+{txt}(33,426 missing values generated)
+
+{com}. replace child_not_atten = . if attendance==. & child_schoolage==1
+{txt}(0 real changes made)
+
+{com}. bysort  hh_id: egen any_child_not_atten = max(child_not_atten)
+{txt}(19113 missing values generated)
+
+{com}. gen     hh_child_atten = (any_child_not_atten==0) 
+{txt}
+{com}. replace hh_child_atten = . if any_child_not_atten==.
+{txt}(19,113 real changes made, 19,113 to missing)
+
+{com}. replace hh_child_atten = 1 if hh_children_schoolage==0
+{txt}(19,113 real changes made)
+
+{com}. replace hh_child_atten = . if hh_child_atten==1 & no_missing_atten==0 
+{txt}(0 real changes made)
+
+{com}.         /*If the household has been intially identified as non-deprived, but has 
+>         missing school attendance for at least 2/3 of the school aged children, then 
+>         we replace this household with a value of '.' because there is insufficient 
+>         information to conclusively conclude that the household is not deprived */
+. lab var hh_child_atten "Household has all school age children up to class 8 in school"
+{txt}
+{com}. tab hh_child_atten, miss
+
+  {txt}Household {c |}
+    has all {c |}
+ school age {c |}
+children up {c |}
+ to class 8 {c |}
+  in school {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,186        3.01        3.01
+{txt}          1 {c |}{res}     38,194       96.99      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. /*Note: The indicator takes value 1 if ALL children in school age are attending 
+> school and 0 if there is at least one child not attending. Households with no 
+> children receive a value of 1 as non-deprived. The indicator has a missing value 
+> only when there are all missing values on children attendance in households that 
+> have children in school age. */
+. 
+. 
+.  
+. ********************************************************************************
+. *** Step 2.3 Nutrition ***
+. ********************************************************************************
+.         /*Note: Anthropometric data was not collected for children under 5 as part 
+>         of the Viet Nam MICS 2014 dataset.*/
+.         
+. gen hh_nutrition_uw_st = .      
+{txt}(39,380 missing values generated)
+
+{com}. 
+. ********************************************************************************
+. *** Step 2.4 Child Mortality ***
+. ********************************************************************************
+. 
+.         //NOTE: Viet Nam MICS 2014: No information on child mortality from men 
+. 
+. codebook cm9a cm9b 
+
+{txt}{hline}
+{res}cm9a{right:Boys dead}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+
+{col 18}range:  [{res}0{txt},{res}3{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}4{col 51}{txt}missing .:  {res}38,926{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.  Value
+{col 21}{res}       162{col 33}0
+{col 21}       265{col 33}1
+{col 21}        23{col 33}2
+{col 21}         4{col 33}3
+{col 21}    38,926{col 33}.
+
+{txt}{hline}
+{res}cm9b{right:Girls dead}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+
+{col 18}range:  [{res}0{txt},{res}3{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}4{col 51}{txt}missing .:  {res}38,926{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.  Value
+{col 21}{res}       256{col 33}0
+{col 21}       189{col 33}1
+{col 21}         8{col 33}2
+{col 21}         1{col 33}3
+{col 21}    38,926{col 33}.
+{txt}
+{com}.         //cm9a or cm9b: number of sons/daugters who have died provided by women
+. 
+.         
+. egen temp_f = rowtotal(cm9a cm9b), missing
+{txt}(38926 missing values generated)
+
+{com}.         //Total child mortality reported by eligible women
+. replace temp_f = 0 if cm1==1 & cm8==2 | cm1==2 
+{txt}(9,373 real changes made)
+
+{com}.         /*Assign a value of "0" for:
+>         - all eligible women who have ever gave birth but reported no child death 
+>         - all eligible women who never ever gave birth */
+. replace temp_f = 0 if no_fem_eligible==1        
+{txt}(5,533 real changes made)
+
+{com}.         /*Assign a value of "0" for:
+>         - individuals living in households that have non-eligible women */
+. bysort  hh_id: egen child_mortality_f = sum(temp_f), missing
+{txt}(595 missing values generated)
+
+{com}. lab var child_mortality_f "Occurrence of child mortality reported by women"
+{txt}
+{com}. tab child_mortality_f, miss
+
+ {txt}Occurrence {c |}
+   of child {c |}
+  mortality {c |}
+reported by {c |}
+      women {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}     36,685       93.16       93.16
+{txt}          1 {c |}{res}      1,714        4.35       97.51
+{txt}          2 {c |}{res}        310        0.79       98.30
+{txt}          3 {c |}{res}         54        0.14       98.43
+{txt}          4 {c |}{res}         22        0.06       98.49
+{txt}          . {c |}{res}        595        1.51      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. drop temp_f
+{txt}
+{com}. *correct
+.         
+. 
+. gen child_mortality_m = .       
+{txt}(39,380 missing values generated)
+
+{com}. lab var child_mortality_m "Occurrence of child mortality reported by men"
+{txt}
+{com}.         /* In the case of Vietnam, this takes missing value because the survey did 
+>         not colelct information on child mortality from men */
+. 
+. 
+. egen child_mortality = rowmax(child_mortality_f)
+{txt}(595 missing values generated)
+
+{com}. lab var child_mortality "Total child mortality within household reported by women & men"
+{txt}
+{com}. tab child_mortality, miss
+
+{txt}Total child {c |}
+  mortality {c |}
+     within {c |}
+  household {c |}
+reported by {c |}
+women & men {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}     36,685       93.16       93.16
+{txt}          1 {c |}{res}      1,714        4.35       97.51
+{txt}          2 {c |}{res}        310        0.79       98.30
+{txt}          3 {c |}{res}         54        0.14       98.43
+{txt}          4 {c |}{res}         22        0.06       98.49
+{txt}          . {c |}{res}        595        1.51      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. *correct
+.         
+. *** Standard MPI *** 
+. /* The standard MPI indicator takes a value of "0" if women in the household 
+> reported mortality among children under 18 in the last 5 years from the survey 
+> year. The indicator takes a value of "1" if eligible women within the household 
+> reported (i) no child mortality or (ii) if any child died longer than 5 years 
+> from the survey year or (iii) if any child 18 years and older died in the last 
+> 5 years. Households were replaced with a value of "1" if eligible 
+> men within the household reported no child mortality in the absence of 
+> information from women. The indicator takes a missing value if there was 
+> missing information on reported death from eligible individuals. */
+. ************************************************************************
+. 
+. tab childu18_died_per_wom_5y, miss
+
+{txt}Total child {c |}
+   under 18 {c |}
+  death for {c |}
+ each women {c |}
+in the last {c |}
+    5 years {c |}
+     (birth {c |}
+    recode) {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      7,022       17.83       17.83
+{txt}          1 {c |}{res}         75        0.19       18.02
+{txt}          2 {c |}{res}          4        0.01       18.03
+{txt}          . {c |}{res}     32,279       81.97      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. *CO not the same
+. 
+.         /* The 'childu18_died_per_wom_5y' variable was constructed in Step 1.2 using 
+>         information from individual women who ever gave birth in the BH file. The 
+>         missing values represent eligible woman who have never ever given birth and 
+>         so are not present in the BR file. But these 'missing women' may be living 
+>         in households where there are other women with child mortality information 
+>         from the BH file. So at this stage, it is important that we aggregate the 
+>         information that was obtained from the BH file at the household level. This
+>         ensures that women who were not present in the BH file is assigned with a 
+>         value, following the information provided by other women in the household.*/            
+. replace childu18_died_per_wom_5y = 0 if cm1==1 & cm8==2 | cm1==2 
+{txt}(2,726 real changes made)
+
+{com}.         /*Assign a value of "0" for:
+>         - all eligible women who have ever gave birth but reported no child death 
+>         - all eligible women who never ever gave birth */
+. replace childu18_died_per_wom_5y = 0 if no_fem_eligible==1      
+{txt}(5,533 real changes made)
+
+{com}.         /*Assign a value of "0" for:
+>         - individuals living in households that have non-eligible women */
+.         
+. bysort hh_id: egen childu18_mortality_5y = sum(childu18_died_per_wom_5y), missing
+{txt}(595 missing values generated)
+
+{com}. replace childu18_mortality_5y = 0 if childu18_mortality_5y==. & child_mortality==0
+{txt}(0 real changes made)
+
+{com}.         /*Replace all households as 0 death if women has missing value and men 
+>         reported no death in those households */
+. label var childu18_mortality_5y "Under 18 child mortality within household past 5 years reported by women"
+{txt}
+{com}. tab childu18_mortality_5y, miss         
+
+   {txt}Under 18 {c |}
+      child {c |}
+  mortality {c |}
+     within {c |}
+  household {c |}
+     past 5 {c |}
+      years {c |}
+reported by {c |}
+      women {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}     38,383       97.47       97.47
+{txt}          1 {c |}{res}        386        0.98       98.45
+{txt}          2 {c |}{res}         16        0.04       98.49
+{txt}          . {c |}{res}        595        1.51      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}.         
+. gen hh_mortality_u18_5y = (childu18_mortality_5y==0)
+{txt}
+{com}. replace hh_mortality_u18_5y = . if childu18_mortality_5y==.
+{txt}(595 real changes made, 595 to missing)
+
+{com}. lab var hh_mortality_u18_5y "Household had no under 18 child mortality in the last 5 years"
+{txt}
+{com}. tab hh_mortality_u18_5y, miss 
+
+  {txt}Household {c |}
+     had no {c |}
+   under 18 {c |}
+      child {c |}
+  mortality {c |}
+in the last {c |}
+    5 years {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}        402        1.02        1.02
+{txt}          1 {c |}{res}     38,383       97.47       98.49
+{txt}          . {c |}{res}        595        1.51      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 2.5 Electricity ***
+. ********************************************************************************
+. 
+. 
+. *** Standard MPI ***
+. /*Members of the household are considered 
+> deprived if the household has no electricity */
+. ***************************************************
+. clonevar electricity = hc8a 
+{txt}
+{com}. codebook electricity, tab (10)
+
+{txt}{hline}
+{res}electricity{right:Electricity}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC8A}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    39,001{col 33}       1{col 43}{txt}Yes
+{col 21}{res}       379{col 33}       2{col 43}{txt}No
+
+{com}. replace electricity = 0 if electricity==2 
+{txt}(379 real changes made)
+
+{com}. replace electricity = . if electricity==9       
+{txt}(0 real changes made)
+
+{com}. label var electricity "Household has electricity"
+{txt}
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 2.6 Sanitation ***
+. ********************************************************************************
+. /*
+> Improved sanitation facilities include flush or pour flush toilets to sewer 
+> systems, septic tanks or pit latrines, ventilated improved pit latrines, pit 
+> latrines with a slab, and composting toilets. These facilities are only 
+> considered improved if it is private, that is, it is not shared with other 
+> households.
+> Source: https://unstats.un.org/sdgs/metadata/files/Metadata-06-02-01.pdf
+> 
+> Note: In cases of mismatch between the country report and the internationally 
+> agreed guideline, we followed the report.
+> */
+. 
+. clonevar toilet = ws8  
+{txt}
+{com}. codebook toilet, tab(30) 
+
+{txt}{hline}
+{res}toilet{right:Type of toilet facility}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:WS8}
+
+{col 18}range:  [{res}11{txt},{res}96{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}13{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}       429{col 33}      11{col 43}{txt}Flush to piped sewer system
+{col 21}{res}    25,220{col 33}      12{col 43}{txt}Flush to septic tank
+{col 21}{res}     1,128{col 33}      13{col 43}{txt}Flush to pit (latrine)
+{col 21}{res}       318{col 33}      14{col 43}{txt}Flush to somewhere else
+{col 21}{res}        20{col 33}      15{col 43}{txt}Flush to unknown place / Not
+{col 43}sure / DK where
+{col 21}{res}       140{col 33}      21{col 43}{txt}Ventilated Improved Pit latrine
+{col 43}(VIP)
+{col 21}{res}     2,455{col 33}      22{col 43}{txt}Pit latrine with slab
+{col 21}{res}     1,662{col 33}      23{col 43}{txt}Pit latrine without slab / Open
+{col 43}pit
+{col 21}{res}     2,292{col 33}      31{col 43}{txt}Composting toilet
+{col 21}{res}        23{col 33}      41{col 43}{txt}Bucket
+{col 21}{res}     2,300{col 33}      51{col 43}{txt}Hanging toilet, Hanging latrine
+{col 21}{res}     3,173{col 33}      95{col 43}{txt}No facility, Bush, Field
+{col 21}{res}       220{col 33}      96{col 43}{txt}Other
+
+{com}. codebook ws9, tab(30)  
+
+{txt}{hline}
+{res}ws9{right:Toilet facility shared}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:WS9}
+
+{col 18}range:  [{res}1{txt},{res}9{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}3{col 51}{txt}missing .:  {res}3,173{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     2,579{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    33,619{col 33}       2{col 43}{txt}No
+{col 21}{res}         9{col 33}       9{col 43}{txt}Missing
+{col 21}{res}     3,173{col 33}       .{col 43}
+{txt}
+{com}.         
+. clonevar shared_toilet = ws9 
+{txt}(3,173 missing values generated)
+
+{com}. recode shared_toilet (2=0)
+{txt}(shared_toilet: 33619 changes made)
+
+{com}. replace shared_toilet=. if shared_toilet==9
+{txt}(9 real changes made, 9 to missing)
+
+{com}. tab ws9 shared_toilet, miss nol
+
+    {txt}Toilet {c |}
+  facility {c |}      Toilet facility shared
+    shared {c |}         0          1          . {c |}     Total
+{hline 11}{c +}{hline 33}{c +}{hline 10}
+         1 {c |}{res}         0      2,579          0 {txt}{c |}{res}     2,579 
+{txt}         2 {c |}{res}    33,619          0          0 {txt}{c |}{res}    33,619 
+{txt}         9 {c |}{res}         0          0          9 {txt}{c |}{res}         9 
+{txt}         . {c |}{res}         0          0      3,173 {txt}{c |}{res}     3,173 
+{txt}{hline 11}{c +}{hline 33}{c +}{hline 10}
+     Total {c |}{res}    33,619      2,579      3,182 {txt}{c |}{res}    39,380 
+{txt}
+{com}.         //0=no;1=yes;.=missing
+.         
+.                 
+. *** Standard MPI ***
+. /*Members of the household are considered deprived if the household's 
+> sanitation facility is not improved (according to the SDG guideline) 
+> or it is improved but shared with other households*/
+. ********************************************************************
+.         /*Note: In the case of Vietnam MICS 2014, all flush toilet including flush 
+>         to somewhere else and flush to unknown place are identified as improved 
+>         sanitation facility in the report (p.122). As such these categories are 
+>         identified as improved in this dofile.  */      
+. gen     toilet_mdg = ((toilet<=22 | toilet==31) & shared_toilet!=1) 
+{txt}
+{com}. replace toilet_mdg = 0 if (toilet<=22 | toilet==31)  & shared_toilet==1 
+{txt}(0 real changes made)
+
+{com}. replace toilet_mdg = . if toilet==.  | toilet==99
+{txt}(0 real changes made)
+
+{com}. lab var toilet_mdg "Household has improved sanitation with MDG Standards"
+{txt}
+{com}. tab toilet toilet_mdg, miss
+
+                      {txt}{c |}     Household has
+                      {c |}  improved sanitation
+       Type of toilet {c |}  with MDG Standards
+             facility {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+Flush to piped sewer  {c |}{res}         3        426 {txt}{c |}{res}       429 
+{txt} Flush to septic tank {c |}{res}       750     24,470 {txt}{c |}{res}    25,220 
+{txt}Flush to pit (latrine {c |}{res}        90      1,038 {txt}{c |}{res}     1,128 
+{txt}Flush to somewhere el {c |}{res}        11        307 {txt}{c |}{res}       318 
+{txt}Flush to unknown plac {c |}{res}         3         17 {txt}{c |}{res}        20 
+{txt}Ventilated Improved P {c |}{res}         0        140 {txt}{c |}{res}       140 
+{txt}Pit latrine with slab {c |}{res}       213      2,242 {txt}{c |}{res}     2,455 
+{txt}Pit latrine without s {c |}{res}     1,662          0 {txt}{c |}{res}     1,662 
+{txt}    Composting toilet {c |}{res}       239      2,053 {txt}{c |}{res}     2,292 
+{txt}               Bucket {c |}{res}        23          0 {txt}{c |}{res}        23 
+{txt}Hanging toilet, Hangi {c |}{res}     2,300          0 {txt}{c |}{res}     2,300 
+{txt}No facility, Bush, Fi {c |}{res}     3,173          0 {txt}{c |}{res}     3,173 
+{txt}                Other {c |}{res}       220          0 {txt}{c |}{res}       220 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}     8,687     30,693 {txt}{c |}{res}    39,380 
+{txt}
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 2.7 Drinking Water  ***
+. ********************************************************************************
+. /*
+> Improved drinking water sources include the following: piped water into 
+> dwelling, yard or plot; public taps or standpipes; boreholes or tubewells; 
+> protected dug wells; protected springs; packaged water; delivered water and 
+> rainwater which is located on premises or is less than a 30-minute walk from 
+> home roundtrip. 
+> Source: https://unstats.un.org/sdgs/metadata/files/Metadata-06-01-01.pdf
+> 
+> Note: In cases of mismatch between the country report and the internationally 
+> agreed guideline, we followed the report.
+> */
+. 
+. clonevar water = ws1  
+{txt}
+{com}. clonevar timetowater = ws4  
+{txt}(36,459 missing values generated)
+
+{com}. codebook water, tab(99)
+
+{txt}{hline}
+{res}water{right:Main source of drinking water}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:WS1}
+
+{col 18}range:  [{res}11{txt},{res}96{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}13{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     9,958{col 33}      11{col 43}{txt}Piped into dwelling
+{col 21}{res}       747{col 33}      12{col 43}{txt}Piped into compound, yard or
+{col 43}plot
+{col 21}{res}        79{col 33}      13{col 43}{txt}Piped to neighbour
+{col 21}{res}        21{col 33}      14{col 43}{txt}Public tap / standpipe
+{col 21}{res}     6,496{col 33}      21{col 43}{txt}Tube well, Borehole
+{col 21}{res}     6,492{col 33}      31{col 43}{txt}Protected well
+{col 21}{res}     1,264{col 33}      32{col 43}{txt}Unprotected well
+{col 21}{res}     2,220{col 33}      41{col 43}{txt}Protected spring
+{col 21}{res}     1,148{col 33}      42{col 43}{txt}Unprotected spring
+{col 21}{res}     4,120{col 33}      51{col 43}{txt}Rainwater collection
+{col 21}{res}       384{col 33}      81{col 43}{txt}Surface water (river, stream,
+{col 43}dam, lake, pond, canal,
+{col 43}irrigation channel)
+{col 21}{res}     6,423{col 33}      91{col 43}{txt}Bottled water
+{col 21}{res}        28{col 33}      96{col 43}{txt}Other
+
+{com}.         
+. clonevar ndwater = ws2  
+{txt}(32,957 missing values generated)
+
+{com}.         //Non-drinking water
+.         
+. tab ws2 if water==91    
+
+    {txt}Main source of water used for other {c |}
+    purposes (if bottled water used for {c |}
+                               drinking {c |}      Freq.     Percent        Cum.
+{hline 40}{c +}{hline 35}
+                    Piped into dwelling {c |}{res}      2,940       45.77       45.77
+{txt}      Piped into compound, yard or plot {c |}{res}        126        1.96       47.73
+{txt}                     Piped to neighbour {c |}{res}         55        0.86       48.59
+{txt}                 Public tap / standpipe {c |}{res}          4        0.06       48.65
+{txt}                    Tube well, Borehole {c |}{res}      2,076       32.32       80.97
+{txt}                         Protected well {c |}{res}        651       10.14       91.11
+{txt}                       Unprotected well {c |}{res}         79        1.23       92.34
+{txt}                       Protected spring {c |}{res}         80        1.25       93.59
+{txt}                     Unprotected spring {c |}{res}          4        0.06       93.65
+{txt}                   Rainwater collection {c |}{res}        110        1.71       95.36
+{txt}Surface water (river, stream, dam, lake {c |}{res}        244        3.80       99.16
+{txt}                                  Other {c |}{res}         54        0.84      100.00
+{txt}{hline 40}{c +}{hline 35}
+                                  Total {c |}{res}      6,423      100.00
+{txt}
+{com}. /*Because the quality of bottled water is not known, households using bottled 
+> water for drinking are classified as using an improved or unimproved source 
+> according to their water source for non-drinking activities such as cooking and 
+> hand washing. However, it is important to note that households using bottled 
+> water for drinking are classified as unimproved source if this is explicitly 
+> mentioned in the country report. */     
+. 
+. 
+. *** Standard MPI ***
+. /* Members of the household are considered deprived if the household 
+> does not have access to improved drinking water (according to the SDG 
+> guideline) or safe drinking water is at least a 30-minute walk from 
+> home, roundtrip */
+. ********************************************************************
+. gen     water_mdg = 1 if water==11 | water==12 | water==14 | water==21 | water==13 | ///
+>                                          water==31 | water==41 | water==51 | water==91  
+{txt}(2,824 missing values generated)
+
+{com}.                                         
+.         /*Non deprived if water is "piped into dwelling", "piped to yard/plot", 
+>          "public tap/standpipe", "tube well or borehole", "protected well", 
+>          "protected spring", "rainwater", "bottled water" */
+.         
+. 
+.         
+. replace water_mdg = 0 if water==32  | water==42 |  ///
+>                                                 water==81 | water==96 
+{txt}(2,824 real changes made)
+
+{com}.         /*Deprived if it is "unprotected well", "unprotected spring", "tanker truck"
+>         "surface water (river/lake, etc)", "cart with small tank","other" */
+.         
+. replace water_mdg = 0 if water_mdg==1 & timetowater >= 30 & timetowater!=. & ///
+>                                                  timetowater!=998 & timetowater!=999 
+{txt}(129 real changes made)
+
+{com}.         //Deprived if water is at more than 30 minutes' walk (roundtrip) 
+. 
+. replace water_mdg = . if water==. | water==99
+{txt}(0 real changes made)
+
+{com}. replace water_mdg = 0 if water==91 & ///
+>                                                 (ndwater==32 | ndwater==42 | ///
+>                                                  ndwater==81 | ndwater==96) 
+{txt}(378 real changes made)
+
+{com}.         /*Households using bottled water for drinking are classified as using an 
+>         improved or unimproved source according to their water source for 
+>         non-drinking activities */
+. lab var water_mdg "Household has drinking water with MDG standards (considering distance)"
+{txt}
+{com}. tab water water_mdg, miss
+
+                      {txt}{c |}     Household has
+                      {c |}  drinking water with
+                      {c |}     MDG standards
+                      {c |}     (considering
+       Main source of {c |}       distance)
+       drinking water {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+  Piped into dwelling {c |}{res}         0      9,958 {txt}{c |}{res}     9,958 
+{txt}Piped into compound,  {c |}{res}         0        747 {txt}{c |}{res}       747 
+{txt}   Piped to neighbour {c |}{res}         0         79 {txt}{c |}{res}        79 
+{txt}Public tap / standpip {c |}{res}         0         21 {txt}{c |}{res}        21 
+{txt}  Tube well, Borehole {c |}{res}         2      6,494 {txt}{c |}{res}     6,496 
+{txt}       Protected well {c |}{res}        27      6,465 {txt}{c |}{res}     6,492 
+{txt}     Unprotected well {c |}{res}     1,264          0 {txt}{c |}{res}     1,264 
+{txt}     Protected spring {c |}{res}        72      2,148 {txt}{c |}{res}     2,220 
+{txt}   Unprotected spring {c |}{res}     1,148          0 {txt}{c |}{res}     1,148 
+{txt} Rainwater collection {c |}{res}         9      4,111 {txt}{c |}{res}     4,120 
+{txt}Surface water (river, {c |}{res}       384          0 {txt}{c |}{res}       384 
+{txt}        Bottled water {c |}{res}       397      6,026 {txt}{c |}{res}     6,423 
+{txt}                Other {c |}{res}        28          0 {txt}{c |}{res}        28 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}     3,331     36,049 {txt}{c |}{res}    39,380 
+{txt}
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 2.8 Housing ***
+. ********************************************************************************
+. 
+. /* Members of the household are considered deprived if the household 
+> has a dirt, sand or dung floor */
+. clonevar floor = hc3
+{txt}
+{com}. codebook floor, tab(99)
+
+{txt}{hline}
+{res}floor{right:Main material of floor}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC3}
+
+{col 18}range:  [{res}11{txt},{res}36{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}9{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     1,664{col 33}      11{col 43}{txt}Natural floor
+{col 21}{res}       836{col 33}      21{col 43}{txt}Wood planks
+{col 21}{res}       541{col 33}      22{col 43}{txt}Palm / Bamboo
+{col 21}{res}       929{col 33}      31{col 43}{txt}Parquet or polished wood
+{col 21}{res}        17{col 33}      32{col 43}{txt}Vinyl or asphalt strips
+{col 21}{res}     2,509{col 33}      33{col 43}{txt}Ceramic tiles
+{col 21}{res}     7,332{col 33}      34{col 43}{txt}Cement
+{col 21}{res}        29{col 33}      35{col 43}{txt}Carpet
+{col 21}{res}    25,523{col 33}      36{col 43}{txt}Enamelled tiles/ marble
+
+{com}. gen     floor_imp = 1
+{txt}
+{com}. replace floor_imp = 0 if floor==11 | floor == 96 
+{txt}(1,664 real changes made)
+
+{com}.         //Deprived if "mud/earth/clay", "sand", "dung", "other" 
+. replace floor_imp = . if floor==99 
+{txt}(0 real changes made)
+
+{com}. replace floor_imp = . if floor == .
+{txt}(0 real changes made)
+
+{com}. lab var floor_imp "Household has floor that it is not earth/sand/dung"
+{txt}
+{com}. tab floor floor_imp, miss       
+
+                      {txt}{c |}  Household has floor
+                      {c |}    that it is not
+     Main material of {c |}    earth/sand/dung
+                floor {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+        Natural floor {c |}{res}     1,664          0 {txt}{c |}{res}     1,664 
+{txt}          Wood planks {c |}{res}         0        836 {txt}{c |}{res}       836 
+{txt}        Palm / Bamboo {c |}{res}         0        541 {txt}{c |}{res}       541 
+{txt}Parquet or polished w {c |}{res}         0        929 {txt}{c |}{res}       929 
+{txt}Vinyl or asphalt stri {c |}{res}         0         17 {txt}{c |}{res}        17 
+{txt}        Ceramic tiles {c |}{res}         0      2,509 {txt}{c |}{res}     2,509 
+{txt}               Cement {c |}{res}         0      7,332 {txt}{c |}{res}     7,332 
+{txt}               Carpet {c |}{res}         0         29 {txt}{c |}{res}        29 
+{txt}Enamelled tiles/ marb {c |}{res}         0     25,523 {txt}{c |}{res}    25,523 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}     1,664     37,716 {txt}{c |}{res}    39,380 
+{txt}
+{com}. 
+. 
+. /* Members of the household are considered deprived if the household has wall 
+> made of natural or rudimentary materials */
+. clonevar wall = hc5
+{txt}
+{com}. codebook wall, tab(99)
+
+{txt}{hline}
+{res}wall{right:Main material of exterior wall}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC5}
+
+{col 18}range:  [{res}11{txt},{res}96{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}17{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}        42{col 33}      11{col 43}{txt}No walls
+{col 21}{res}     1,329{col 33}      12{col 43}{txt}Cane/Palm/Trunks
+{col 21}{res}        56{col 33}      13{col 43}{txt}Dirt
+{col 21}{res}        21{col 33}      14{col 43}{txt}Reed
+{col 21}{res}       424{col 33}      21{col 43}{txt}Bamboo with mud
+{col 21}{res}       132{col 33}      22{col 43}{txt}Stone with mud
+{col 21}{res}        40{col 33}      23{col 43}{txt}Uncovered adobe
+{col 21}{res}       342{col 33}      24{col 43}{txt}Plywood
+{col 21}{res}        28{col 33}      25{col 43}{txt}Cardboard
+{col 21}{res}       282{col 33}      26{col 43}{txt}Reused wood
+{col 21}{res}        21{col 33}      31{col 43}{txt}Cement
+{col 21}{res}        78{col 33}      32{col 43}{txt}Stone with lime / cement
+{col 21}{res}    30,817{col 33}      33{col 43}{txt}Bricks
+{col 21}{res}     1,152{col 33}      34{col 43}{txt}Cement blocks
+{col 21}{res}       154{col 33}      35{col 43}{txt}Covered adobe
+{col 21}{res}     3,309{col 33}      36{col 43}{txt}Wood planks / shingles
+{col 21}{res}     1,153{col 33}      96{col 43}{txt}Other
+
+{com}. gen     wall_imp = 1 
+{txt}
+{com}. replace wall_imp = 0 if wall<=26 | wall==96 
+{txt}(3,849 real changes made)
+
+{com}.         /*Deprived if "no wall" "cane/palms/trunk" "mud/dirt" 
+>         "grass/reeds/thatch" "pole/bamboo with mud" "stone with mud" "cardboard" 
+>         "carton/plastic" "uncovered adobe" "canvas/tent" "unburnt bricks" "other"
+>         "plywood" */    
+. replace wall_imp = . if wall == .
+{txt}(0 real changes made)
+
+{com}. lab var wall_imp "Household has wall that it is not of low quality materials"
+{txt}
+{com}. tab wall wall_imp, miss 
+
+                      {txt}{c |}  Household has wall
+                      {c |} that it is not of low
+     Main material of {c |}   quality materials
+        exterior wall {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+             No walls {c |}{res}        42          0 {txt}{c |}{res}        42 
+{txt}     Cane/Palm/Trunks {c |}{res}     1,329          0 {txt}{c |}{res}     1,329 
+{txt}                 Dirt {c |}{res}        56          0 {txt}{c |}{res}        56 
+{txt}                 Reed {c |}{res}        21          0 {txt}{c |}{res}        21 
+{txt}      Bamboo with mud {c |}{res}       424          0 {txt}{c |}{res}       424 
+{txt}       Stone with mud {c |}{res}       132          0 {txt}{c |}{res}       132 
+{txt}      Uncovered adobe {c |}{res}        40          0 {txt}{c |}{res}        40 
+{txt}              Plywood {c |}{res}       342          0 {txt}{c |}{res}       342 
+{txt}            Cardboard {c |}{res}        28          0 {txt}{c |}{res}        28 
+{txt}          Reused wood {c |}{res}       282          0 {txt}{c |}{res}       282 
+{txt}               Cement {c |}{res}         0         21 {txt}{c |}{res}        21 
+{txt}Stone with lime / cem {c |}{res}         0         78 {txt}{c |}{res}        78 
+{txt}               Bricks {c |}{res}         0     30,817 {txt}{c |}{res}    30,817 
+{txt}        Cement blocks {c |}{res}         0      1,152 {txt}{c |}{res}     1,152 
+{txt}        Covered adobe {c |}{res}         0        154 {txt}{c |}{res}       154 
+{txt}Wood planks / shingle {c |}{res}         0      3,309 {txt}{c |}{res}     3,309 
+{txt}                Other {c |}{res}     1,153          0 {txt}{c |}{res}     1,153 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}     3,849     35,531 {txt}{c |}{res}    39,380 
+{txt}
+{com}.         
+. 
+. /* Members of the household are considered deprived if the household has roof 
+> made of natural or rudimentary materials */
+. clonevar roof = hc4
+{txt}
+{com}. codebook roof, tab(99)          
+
+{txt}{hline}
+{res}roof{right:Main material of roof}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC4}
+
+{col 18}range:  [{res}12{txt},{res}38{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}9{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}       749{col 33}      12{col 43}{txt}Thatch / Palm leaf
+{col 21}{res}       180{col 33}      22{col 43}{txt}Palm / Bamboo
+{col 21}{res}        58{col 33}      23{col 43}{txt}Wood planks
+{col 21}{res}    17,452{col 33}      31{col 43}{txt}Metal / Tin
+{col 21}{res}     3,708{col 33}      33{col 43}{txt}Calamine / Cement fibre
+{col 21}{res}     7,779{col 33}      34{col 43}{txt}Ceramic tiles
+{col 21}{res}     9,421{col 33}      35{col 43}{txt}Cement
+{col 21}{res}        30{col 33}      37{col 43}{txt}Stone slates
+{col 21}{res}         3{col 33}      38{col 43}{txt}Asphalt sheets
+
+{com}. gen     roof_imp = 1 
+{txt}
+{com}. replace roof_imp = 0 if roof<=23 |  roof==96 
+{txt}(987 real changes made)
+
+{com}.         /*Deprived if "no roof" "thatch/palm leaf" "mud/earth/lump of earth" 
+>         "sod/grass" "plastic/polythene sheeting" "rustic mat" "cardboard" 
+>         "canvas/tent" "unburnt bricks" "other"*/        
+. replace roof_imp = . if roof== . 
+{txt}(0 real changes made)
+
+{com}. lab var roof_imp "Household has roof that it is not of low quality materials"
+{txt}
+{com}. tab roof roof_imp, miss
+
+                      {txt}{c |}  Household has roof
+                      {c |} that it is not of low
+                      {c |}   quality materials
+Main material of roof {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+   Thatch / Palm leaf {c |}{res}       749          0 {txt}{c |}{res}       749 
+{txt}        Palm / Bamboo {c |}{res}       180          0 {txt}{c |}{res}       180 
+{txt}          Wood planks {c |}{res}        58          0 {txt}{c |}{res}        58 
+{txt}          Metal / Tin {c |}{res}         0     17,452 {txt}{c |}{res}    17,452 
+{txt}Calamine / Cement fib {c |}{res}         0      3,708 {txt}{c |}{res}     3,708 
+{txt}        Ceramic tiles {c |}{res}         0      7,779 {txt}{c |}{res}     7,779 
+{txt}               Cement {c |}{res}         0      9,421 {txt}{c |}{res}     9,421 
+{txt}         Stone slates {c |}{res}         0         30 {txt}{c |}{res}        30 
+{txt}       Asphalt sheets {c |}{res}         0          3 {txt}{c |}{res}         3 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}       987     38,393 {txt}{c |}{res}    39,380 
+{txt}
+{com}. 
+. 
+. 
+. *** Standard MPI ***
+. /* Members of the household is deprived in housing if the roof, 
+> floor OR walls are constructed from low quality materials.*/
+. **************************************************************
+. gen housing_1 = 1
+{txt}
+{com}. replace housing_1 = 0 if floor_imp==0 | wall_imp==0 | roof_imp==0
+{txt}(4,793 real changes made)
+
+{com}. replace housing_1 = . if floor_imp==. & wall_imp==. & roof_imp==.
+{txt}(0 real changes made)
+
+{com}. lab var housing_1 "Household has roof, floor & walls that it is not low quality material"
+{txt}
+{com}. tab housing_1, miss
+
+  {txt}Household {c |}
+  has roof, {c |}
+    floor & {c |}
+ walls that {c |}
+  it is not {c |}
+low quality {c |}
+   material {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      4,793       12.17       12.17
+{txt}          1 {c |}{res}     34,587       87.83      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}     39,380      100.00
+{txt}
+{com}. 
+. 
+. 
+. ********************************************************************************
+. *** Step 2.9 Cooking Fuel ***
+. ********************************************************************************
+. /*
+> Solid fuel are solid materials burned as fuels, which includes coal as well as 
+> solid biomass fuels (wood, animal dung, crop wastes and charcoal). 
+> 
+> Source: 
+> https://apps.who.int/iris/bitstream/handle/10665/141496/9789241548885_eng.pdf
+> */
+. 
+. lookfor cooking
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:cl10c          }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:CL10C    }{bind:  }{res}{res}Household chores: cooking or cleaning{p_end}
+{p 0 48}{bind:hc6            }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:HC6      }{bind:  }{res}{res}Type of fuel using for cooking{p_end}
+{p 0 48}{bind:hc7            }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:HC7      }{bind:  }{res}{res}Cooking location{p_end}
+{txt}
+{com}. clonevar cookingfuel = hc6  
+{txt}
+{com}. codebook cookingfuel, tab(99)
+
+{txt}{hline}
+{res}cookingfuel{right:Type of fuel using for cooking}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC6}
+
+{col 18}range:  [{res}1{txt},{res}95{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}11{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}       628{col 33}       1{col 43}{txt}Electricity
+{col 21}{res}    21,723{col 33}       2{col 43}{txt}Liquefied Petroleum Gas (LPG)
+{col 21}{res}        75{col 33}       3{col 43}{txt}Natural gas
+{col 21}{res}       441{col 33}       4{col 43}{txt}Biogas
+{col 21}{res}        82{col 33}       5{col 43}{txt}Kerosene
+{col 21}{res}       620{col 33}       6{col 43}{txt}Coal / Lignite
+{col 21}{res}       938{col 33}       7{col 43}{txt}Charcoal
+{col 21}{res}    14,326{col 33}       8{col 43}{txt}Wood
+{col 21}{res}       358{col 33}       9{col 43}{txt}Straw / Shrubs / Grass
+{col 21}{res}       129{col 33}      11{col 43}{txt}Agricultural crop residue
+{col 21}{res}        60{col 33}      95{col 43}{txt}No food cooked in household
+
+{com}. 
+. 
+. *** Standard MPI ***
+. /* Members of the household are considered deprived if the 
+> household uses solid fuels and solid biomass fuels for cooking. */
+. *****************************************************************
+. gen     cooking_mdg = 1
+{txt}
+{com}. replace cooking_mdg = 0 if cookingfuel>5 & cookingfuel<95 
+{txt}(16,371 real changes made)
+
+{com}. replace cooking_mdg = . if cookingfuel==. |cookingfuel==99
+{txt}(0 real changes made)
+
+{com}. lab var cooking_mdg "Household has cooking fuel according to MDG standards"
+{txt}
+{com}.         /* Non deprived if: "electricity", "lpg", "natural gas", "biogas", 
+>                                                 "kerosene" , "no food cooked in household", "other"
+>            Deprived if: "coal/lignite", "charcoal", "wood", "straw/shrubs/grass" 
+>                                         "agricultural crop", "animal dung" */            
+. tab cookingfuel cooking_mdg, miss       
+
+                      {txt}{c |} Household has cooking
+                      {c |} fuel according to MDG
+   Type of fuel using {c |}       standards
+          for cooking {c |}         0          1 {c |}     Total
+{hline 22}{c +}{hline 22}{c +}{hline 10}
+          Electricity {c |}{res}         0        628 {txt}{c |}{res}       628 
+{txt}Liquefied Petroleum G {c |}{res}         0     21,723 {txt}{c |}{res}    21,723 
+{txt}          Natural gas {c |}{res}         0         75 {txt}{c |}{res}        75 
+{txt}               Biogas {c |}{res}         0        441 {txt}{c |}{res}       441 
+{txt}             Kerosene {c |}{res}         0         82 {txt}{c |}{res}        82 
+{txt}       Coal / Lignite {c |}{res}       620          0 {txt}{c |}{res}       620 
+{txt}             Charcoal {c |}{res}       938          0 {txt}{c |}{res}       938 
+{txt}                 Wood {c |}{res}    14,326          0 {txt}{c |}{res}    14,326 
+{txt}Straw / Shrubs / Gras {c |}{res}       358          0 {txt}{c |}{res}       358 
+{txt}Agricultural crop res {c |}{res}       129          0 {txt}{c |}{res}       129 
+{txt}No food cooked in hou {c |}{res}         0         60 {txt}{c |}{res}        60 
+{txt}{hline 22}{c +}{hline 22}{c +}{hline 10}
+                Total {c |}{res}    16,371     23,009 {txt}{c |}{res}    39,380 
+{txt}
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 2.10 Assets ownership ***
+. ********************************************************************************
+. /*Assets that are included in the global MPI: Radio, TV, telephone, bicycle, 
+> motorbike, refrigerator, car, computer and animal cart */
+. 
+. 
+.         //Check that for standard assets in living standards: "no"==0 and yes=="1"
+. codebook hc8c hc8b hc8d hc9b hc8e hc8q hc9c hc8o hc11
+
+{txt}{hline}
+{res}hc8c{right:Television}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC8C}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    37,583{col 33}       1{col 43}{txt}Yes
+{col 21}{res}     1,797{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc8b{right:Radio}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC8B}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     6,902{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    32,478{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc8d{right:Fixed phone}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC8D}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     9,742{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    29,638{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc9b{right:Mobile telephone}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC9B}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    37,558{col 33}       1{col 43}{txt}Yes
+{col 21}{res}     1,822{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc8e{right:Refrigerator}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC8E}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    24,906{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    14,474{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc8q{right:Ship and boat with a motor}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC8Q}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     1,723{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    37,657{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc9c{right:Bicycle}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC9C}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    24,912{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    14,468{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc8o{right:Tractor}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC8O}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}     2,335{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    37,045{col 33}       2{col 43}{txt}No
+
+{txt}{hline}
+{res}hc11{right:Any household member own or have user rights for land that can be used for agric}
+{txt}{hline}
+
+{col 19}type:  numeric ({res}byte{txt})
+{ralign 22:label}:  {res:HC11}
+
+{col 18}range:  [{res}1{txt},{res}2{txt}]{col 55}units:  {res}1
+{col 10}{txt}unique values:  {res}2{col 51}{txt}missing .:  {res}0{txt}/{res}39,380
+
+{txt}{col 13}tabulation:  Freq.   Numeric  Label
+{col 21}{res}    21,854{col 33}       1{col 43}{txt}Yes
+{col 21}{res}    17,526{col 33}       2{col 43}{txt}No
+
+{com}. 
+. 
+. recode hc8c (2=0 "no")(1=1 "yes"), gen (television) 
+{txt}(1797 differences between hc8c and television)
+
+{com}. gen bw_television   = .
+{txt}(39,380 missing values generated)
+
+{com}. 
+. recode hc8b (2=0 "no")(1=1 "yes"), gen (radio)
+{txt}(32478 differences between hc8b and radio)
+
+{com}. recode hc8d (2=0 "no")(1=1 "yes"), gen (telephone)
+{txt}(29638 differences between hc8d and telephone)
+
+{com}. recode hc9b (2=0 "no")(1=1 "yes"), gen (mobiletelephone) 
+{txt}(1822 differences between hc9b and mobiletelephone)
+
+{com}. recode hc8e (2=0 "no")(1=1 "yes"), gen (refrigerator)
+{txt}(14474 differences between hc8e and refrigerator)
+
+{com}. recode hc8p (2=0 "no")(1=1 "yes"), gen (car)
+{txt}(37236 differences between hc8p and car)
+
+{com}. recode hc9c (2=0 "no")(1=1 "yes"), gen (bicycle)
+{txt}(14468 differences between hc9c and bicycle)
+
+{com}. recode hc9d (2=0 "no")(1=1 "yes"), gen (motorbike) 
+{txt}(4049 differences between hc9d and motorbike)
+
+{com}. recode hc8j (2=0 "no")(1=1 "yes"), gen (computer)
+{txt}(27129 differences between hc8j and computer)
+
+{com}. gen animal_cart = .
+{txt}(39,380 missing values generated)
+
+{com}. 
+. 
+. foreach var in television radio telephone mobiletelephone refrigerator ///
+>                            car bicycle motorbike computer animal_cart  {c -(}
+{txt}  2{com}. replace `var' = 0 if `var'==2 
+{txt}  3{com}. replace `var' = . if `var'==9 | `var'==99 | `var'==8 | `var'==98 
+{txt}  4{com}. {c )-}
+{txt}(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+(0 real changes made)
+
+{com}.         //Missing values replaced
+. 
+. 
+. 
+.         //Group telephone and mobiletelephone as a single variable
+. replace telephone=1 if telephone==0 & mobiletelephone==1
+{txt}(28,066 real changes made)
+
+{com}. replace telephone=1 if telephone==. & mobiletelephone==1
+{txt}(0 real changes made)
+
+{com}. 
+. 
+. *** Standard MPI ***
+. /* Members of the household are considered deprived in assets if the household 
+> does not own more than one of: radio, TV, telephone, bike, motorbike, 
+> refrigerator, computer or animal cart and does not own a car or truck.*/
+. *****************************************************************************
+. egen n_small_assets2 = rowtotal(television radio telephone refrigerator bicycle motorbike computer animal_cart), missing
+{txt}
+{com}. lab var n_small_assets2 "Household Number of Small Assets Owned" 
+{txt}
+{com}.    
+. gen hh_assets2 = (car==1 | n_small_assets2 > 1) 
+{txt}
+{com}. replace hh_assets2 = . if car==. & n_small_assets2==.
+{txt}(0 real changes made)
+
+{com}. lab var hh_assets2 "Household Asset Ownership: HH has car or more than 1 small assets incl computer & animal cart"
+{txt}note: label truncated to 80 characters
+
+{com}. 
+. 
+. ********************************************************************************
+. *** Step 2.11 Rename and keep variables for MPI calculation 
+. ********************************************************************************
+.         
+. 
+.         //Retain data on sampling design: 
+. desc psu stratum
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:psu            }{txt}{bind: int     }{bind:{txt}%16.0f    }{space 1}{bind:         }{bind:  }{res}{res}Primary sampling unit (PSU){p_end}
+{p 0 48}{bind:stratum        }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:         }{bind:  }{res}{res}Stratum{p_end}
+{txt}
+{com}. rename stratum strata   
+{res}{txt}
+{com}. 
+. 
+.         //Retain year, month & date of interview:
+. desc hh5y hh5m hh5d 
+
+              {txt}storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:hh5y           }{txt}{bind: int     }{bind:{txt}%16.0f    }{space 1}{bind:         }{bind:  }{res}{res}Year of interview{p_end}
+{p 0 48}{bind:hh5m           }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:         }{bind:  }{res}{res}Month of interview{p_end}
+{p 0 48}{bind:hh5d           }{txt}{bind: byte    }{bind:{txt}%16.0f    }{space 1}{bind:         }{bind:  }{res}{res}Day of interview{p_end}
+{txt}
+{com}. clonevar year_interview = hh5y  
+{txt}
+{com}. clonevar month_interview = hh5m 
+{txt}
+{com}. clonevar date_interview = hh5d 
+{txt}
+{com}.  
+.  
+.         //Generate presence of subsample
+. gen subsample = .
+{txt}(39,380 missing values generated)
+
+{com}.  
+. 
+. 
+. *** Rename key global MPI indicators for estimation ***
+. recode hh_mortality_u18_5y  (0=1)(1=0) , gen(d_cm)
+{txt}(38785 differences between hh_mortality_u18_5y and d_cm)
+
+{com}. recode hh_nutrition_uw_st       (0=1)(1=0) , gen(d_nutr)
+{txt}(0 differences between hh_nutrition_uw_st and d_nutr)
+
+{com}. recode hh_child_atten           (0=1)(1=0) , gen(d_satt)
+{txt}(39380 differences between hh_child_atten and d_satt)
+
+{com}. recode hh_years_edu6            (0=1)(1=0) , gen(d_educ)
+{txt}(39380 differences between hh_years_edu6 and d_educ)
+
+{com}. recode electricity                      (0=1)(1=0) , gen(d_elct)
+{txt}(39380 differences between electricity and d_elct)
+
+{com}. recode water_mdg                        (0=1)(1=0) , gen(d_wtr)
+{txt}(39380 differences between water_mdg and d_wtr)
+
+{com}. recode toilet_mdg                       (0=1)(1=0) , gen(d_sani)
+{txt}(39380 differences between toilet_mdg and d_sani)
+
+{com}. recode housing_1                        (0=1)(1=0) , gen(d_hsg)
+{txt}(39380 differences between housing_1 and d_hsg)
+
+{com}. recode cooking_mdg                      (0=1)(1=0) , gen(d_ckfl)
+{txt}(39380 differences between cooking_mdg and d_ckfl)
+
+{com}. recode hh_assets2                       (0=1)(1=0) , gen(d_asst)
+{txt}(39380 differences between hh_assets2 and d_asst)
+
+{com}.  
+. 
+.  su d_*
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 8}d_cm {c |}{res}     38,785    .0103648    .1012801          0          1
+{txt}{space 6}d_nutr {c |}{res}          0
+{txt}{space 6}d_satt {c |}{res}     39,380    .0301168    .1709109          0          1
+{txt}{space 6}d_educ {c |}{res}     39,380    .0873286    .2823196          0          1
+{txt}{space 6}d_elct {c |}{res}     39,380    .0096242    .0976309          0          1
+{txt}{hline 13}{c +}{hline 57}
+{space 7}d_wtr {c |}{res}     39,380    .0845861    .2782683          0          1
+{txt}{space 6}d_sani {c |}{res}     39,380    .2205942    .4146526          0          1
+{txt}{space 7}d_hsg {c |}{res}     39,380    .1217115    .3269565          0          1
+{txt}{space 6}d_ckfl {c |}{res}     39,380    .4157186    .4928517          0          1
+{txt}{space 6}d_asst {c |}{res}     39,380    .0233875    .1511328          0          1
+{txt}
+{com}. 
+.   su d_* [aw=weight]
+
+{txt}    Variable {c |}     Obs      Weight        Mean   Std. Dev.       Min        Max
+{hline 13}{c +}{hline 65}
+{space 8}d_cm {c |}{res}  38,785  37912.9033    .0088282    .093544          0          1
+{txt}{space 6}d_nutr {c |}{res}       0           0
+{txt}{space 6}d_satt {c |}{res}  39,380  38506.1348    .0237927   .1524047          0          1
+{txt}{space 6}d_educ {c |}{res}  39,380  38506.1348    .0863605   .2808992          0          1
+{txt}{space 6}d_elct {c |}{res}  39,380  38506.1348    .0078882   .0884659          0          1
+{txt}{hline 13}{c +}{hline 65}
+{space 7}d_wtr {c |}{res}  39,380  38506.1348    .0820022   .2743716          0          1
+{txt}{space 6}d_sani {c |}{res}  39,380  38506.1348    .2079585   .4058521          0          1
+{txt}{space 7}d_hsg {c |}{res}  39,380  38506.1348    .1253631   .3311344          0          1
+{txt}{space 6}d_ckfl {c |}{res}  39,380  38506.1348    .4160513   .4929085          0          1
+{txt}{space 6}d_asst {c |}{res}  39,380  38506.1348    .0240836   .1533107          0          1
+{txt}
+{com}.  
+.  * assets                correct
+.  * coooking fuel correct
+.  * housing           correct
+.  * sanitation    correct
+.  * water                 0.08522092
+.  * electricity   correct
+.  * education     correct
+.  * attendance    correct
+.  * child mortal  0.001117318
+.  
+. *** Generate coutry and survey details for estimation ***
+. char _dta[cty] "Vietnam"
+{txt}
+{com}. char _dta[ccty] "VNM"
+{txt}
+{com}. char _dta[year] "2013-2014"     
+{txt}
+{com}. char _dta[survey] "MICS"
+{txt}
+{com}. char _dta[ccnum] "704"
+{txt}
+{com}. char _dta[type] "micro"
+{txt}
+{com}. 
+. 
+. *** Sort, compress and save data for estimation ***
+. sort ind_id
+{txt}
+{com}. compress
+  {txt}variable {bf}women_BH{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}childu18_died_per_wom_5y{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}women_WM{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}marital_wom{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}marital_men{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_fem_eligible{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_male_eligible{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_child_eligible{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_adults_eligible{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_child_fem_eligible{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_eligibles{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_hem_eligible{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hhsize{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}region{sf} was {bf}{res}long{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}eduyears{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_missing_edu{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}years_edu6{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_years_edu6_1{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_years_edu6{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}attendance{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}child_schoolage{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}no_missing_atten{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_children_schoolage{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}child_not_atten{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}any_child_not_atten{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_child_atten{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_nutrition_uw_st{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}child_mortality_f{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}child_mortality_m{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}child_mortality{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}childu18_mortality_5y{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_mortality_u18_5y{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}toilet_mdg{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}water_mdg{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}floor_imp{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}wall_imp{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}roof_imp{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}housing_1{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}cooking_mdg{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}bw_television{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}animal_cart{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}n_small_assets2{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_assets2{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}subsample{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_cm{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_nutr{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_satt{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_educ{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_wtr{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_sani{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_hsg{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_ckfl{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}d_asst{sf} was {bf}{res}float{sf}{txt} now {bf}{res}byte{sf}
+  {txt}variable {bf}hh_id{sf} was {bf}{res}double{sf}{txt} now {bf}{res}long{sf}
+  {txt}variable {bf}ind_id{sf} was {bf}{res}double{sf}{txt} now {bf}{res}long{sf}
+{txt}  (6,576,460 bytes saved)
+
+{com}. la da "Micro data for `_dta[ccty]' (`_dta[ccnum]'). Last save: `c(filedate)'."  
+{txt}
+{com}. save "$path_out/vnm_mics14.dta", replace 
+{txt}file C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\results/vnm_mics14.dta saved
+
+{com}. 
+. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\oldig\OneDrive - Nexus365\Countries\VietNam\results\log_vietnam.txt
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res} 8 Jun 2020, 16:45:39
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
