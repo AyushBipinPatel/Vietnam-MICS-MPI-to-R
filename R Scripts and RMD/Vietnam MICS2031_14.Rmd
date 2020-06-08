@@ -143,6 +143,36 @@ bh_dat <- bh_dat %>%
   ungroup()
 ```
 
+Tables before droping duplicates
+
+ Creating Tables for new variables check.
+
+```{r before droptable age_death}
+bh_dat %>% 
+  tabyl(age_death,show_na = TRUE) %>% 
+  gt() 
+```
+
+
+```{r before drop bh5 child_died, warning=FALSE}
+bh_dat %>% 
+  tabyl(bh5, child_died, show_na = T) %>% 
+  gt()
+```
+
+```{r before drop tab child18_died}
+bh_dat %>% 
+  tabyl(child18_died, show_na = T) %>% 
+  gt()
+```
+
+
+```{r before drop tot_child_died tot_chil18_died_5y}
+bh_dat %>% 
+  tabyl(tot_child_died, tot_child18_died_5y, show_na = T)
+```
+
+
 Check if all ind ids are uniuqe
 
 ```{r uiique ind_id check}
@@ -161,7 +191,7 @@ Check again if all ind ids are uniuqe
 nrow(bh_dat) == length(unique(bh_dat$ind_id))
 ```
 
-Creating Tables for new variables check.
+Again, Creating Tables for new variables check.
 
 ```{r table age_death}
 bh_dat %>% 
