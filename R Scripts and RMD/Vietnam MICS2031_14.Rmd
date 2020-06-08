@@ -62,7 +62,10 @@ bh_dat <- read_sav(file = here("Viet Nam_MICS5_Datasets",
                      "Viet Nam MICS 2013-14 SPSS Datasets",
                      "bh.sav"))
 
-bh_dat <- clean_names(bh_dat)
+colnames(bh_dat) <-  str_to_lower(names(bh_dat))
+
+nrow(bh_dat)
+
 ```
 
 The above code chunk loads the bh.sav and names it bh_dat(a data object). The clean names function gets all the variable names in lower snake case. IN case if anyone is wondering what are all the possible cases, please refere to the wonderful art by Allison Horst shown below.
@@ -201,7 +204,7 @@ wm_dat <- read_sav(file = here("Viet Nam_MICS5_Datasets",
                      "Viet Nam MICS 2013-14 SPSS Datasets",
                      "wm.sav"))
 
-wm_dat <- clean_names(wm_dat)
+colnames(wm_dat) <- str_to_lower(names(wm_dat))
 ```
 
 Mutating the data for creating new variables. This is what one would refere to generating new varibles in STATA, I think.
@@ -299,7 +302,7 @@ hh_dat <- read_sav(file = here("Viet Nam_MICS5_Datasets",
                      "Viet Nam MICS 2013-14 SPSS Datasets",
                      "hh.sav"))
 
-hh_dat <- clean_names(hh_dat)
+colnames(hh_dat) <- str_to_lower(names(hh_dat))
 ```
 
 Creating new variables.
@@ -326,7 +329,7 @@ hl_dat <- read_sav(file = here("Viet Nam_MICS5_Datasets",
                      "Viet Nam MICS 2013-14 SPSS Datasets",
                      "hl.sav"))
 
-hl_dat <- clean_names(hl_dat)
+colnames(hl_dat) <- str_to_lower(names(hl_dat))
 ```
 
 Creating new variables.
@@ -2121,7 +2124,6 @@ merged_dat %>%
   kableExtra::kable_styling()
   
 ```
-
 
 
 
