@@ -1956,7 +1956,7 @@ __Headcount/Incidence of Multidimensional Poverty __
 weighted.mean(merged_dat$multid_poor_33, merged_dat$weight) 
 ```
 
-At k = 1/3 , 4.3% of the peopel are poor (multidimensionally deprived).
+At k = 1/3 , `r weighted.mean(merged_dat$multid_poor_33, merged_dat$weight)*100` % of the peopel are poor (multidimensionally deprived).
 
 __Intensity__
 
@@ -1969,7 +1969,7 @@ merged_dat %>%
 
 ```
 
-At k = 1/3, the average Intensity of poverty is 38.1%
+At k = 1/3, the average Intensity of poverty is `r weighted.mean(merged_dat$cens_c_vector_33[merged_dat$multid_poor_33 == 1], merged_dat$weight[merged_dat$multid_poor_33 == 1])*100`
 
 __MPI__
 
@@ -1994,7 +1994,7 @@ M_33
 Now using the product of H and A
 
 ```{r M_33_product}
- 0.04322876 * 0.3814201	
+ weighted.mean(merged_dat$multid_poor_33, merged_dat$weight) * weighted.mean(merged_dat$cens_c_vector_33[merged_dat$multid_poor_33 == 1] , merged_dat$weight[merged_dat$multid_poor_33 == 1])
 
 ```
 
