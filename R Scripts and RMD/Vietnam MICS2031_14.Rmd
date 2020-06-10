@@ -1337,8 +1337,10 @@ Assign 0 for wome who gave birth but did not report death
 ```{r Assign zero}
 merged_dat %<>%
   mutate(
-    childu18_dies_per_wom_5y = ifelse((cm1 == 1&cm8==2)|cm1 == 2, 
-                                      0,childu18_dies_per_wom_5y)
+    childu18_dies_per_wom_5y = ifelse((cm1 == 1&cm8==2)|cm1 == 2,                   0,childu18_dies_per_wom_5y),
+    childu18_dies_per_wom_5y = ifelse(
+      no_fem_eligible == 1,
+      0, childu18_dies_per_wom_5y)
   ) %>% 
   group_by(hh_id) %>% 
   mutate(
@@ -1485,7 +1487,7 @@ merged_dat %<>%
     water_mdg = ifelse(water  %in% c(32,42,81,96),0, water_mdg),
     water_mdg = ifelse(
       (water_mdg == 1 & timetowater >= 30 & !is.na(timetowater) &
-                                                     timetowater != 999),
+                                                     timetowater != 999 & timetowater != 998),
       0, water_mdg),
     water_mdg = ifelse(water == 99 | is.na(water), NA, water_mdg),
     water_mdg = structure(
