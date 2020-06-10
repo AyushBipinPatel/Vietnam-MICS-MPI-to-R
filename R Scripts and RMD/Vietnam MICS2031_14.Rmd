@@ -113,25 +113,25 @@ bh_dat <- bh_dat %>%
   ) %>% 
   ungroup() %>% 
   mutate(
-    child18_died = forcats::as_factor(
-      ifelse((!is.na(age_death) & age_death > 216),
-             ifelse(is.na(bh5),NA,
-                    ifelse(bh5==1,
-                           "child is alive",
-                           "child is dead")), 
-             "child is alive"))
+    child18_died = child_died,
+    child18_died = structure(
+      ifelse((!is.na(age_death) & age_death >= 216), 
+             1, child18_died),
+      labels = c("child is alive" =1,
+                 "child is dead" =2))
+    
     ) %>% 
   group_by(ind_id) %>% 
   mutate(
     tot_child18_died_5y = sum(
-      child18_died[ydead_survey <= 5 & !is.na(ydead_survey)] == "child is dead", na.rm = T)
+      child18_died[ydead_survey <= 5 & !is.na(ydead_survey)] == 2, na.rm = T)
   ) %>% 
   ungroup() %>% 
   mutate(
     tot_child18_died_5y = ifelse(
       (is.na(tot_child18_died_5y) & tot_child_died>=0 & !is.na(tot_child_died)),0,tot_child18_died_5y),
     tot_child18_died_5y = ifelse(
-      child18_died == "child is dead" & is.na(ydead_survey), 
+      child18_died == 2 & is.na(ydead_survey), 
       NA, tot_child18_died_5y)
   ) %>% 
   group_by(ind_id) %>% 
