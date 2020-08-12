@@ -103,35 +103,39 @@ bh_dat <- bh_dat %>%
                              label = "Years dead from Survey"),
     age_death = structure(ifelse(bh5 == 2, bh9c, NA),
                           label = "Age at death in Months"),
-    child_died = structure(forcats::as_factor(
-      ifelse(is.na(bh5),NA,
-             ifelse(bh5==1,"child is alive","child is dead"))))
+    child_died = ifelse(bh5 == 2,1,NA),
+    child_died = ifelse(bh5 == 1,0,child_died),
+    child_died = structure(
+      ifelse(is.na(bh5), NA, child_died),
+      labels = c("child is alive" = 0,
+                 "child is dead" = 1)
+    )
     ) %>% 
   group_by(ind_id) %>% 
   mutate(
-    tot_child_died = sum(child_died == "child is dead", na.rm = T)
+    tot_child_died = sum(child_died, na.rm = T)
   ) %>% 
   ungroup() %>% 
   mutate(
     child18_died = child_died,
     child18_died = structure(
       ifelse((!is.na(age_death) & age_death >= 216), 
-             1, child18_died),
-      labels = c("child is alive" =1,
-                 "child is dead" =2))
+             0, child18_died),
+      labels = c("child is alive" =0,
+                 "child is dead" =1))
     
     ) %>% 
   group_by(ind_id) %>% 
   mutate(
     tot_child18_died_5y = sum(
-      child18_died[ydead_survey <= 5 & !is.na(ydead_survey)] == 2, na.rm = T)
+      child18_died[ydead_survey <= 5], na.rm = T)
   ) %>% 
   ungroup() %>% 
   mutate(
     tot_child18_died_5y = ifelse(
       (is.na(tot_child18_died_5y) & tot_child_died>=0 & !is.na(tot_child_died)),0,tot_child18_died_5y),
     tot_child18_died_5y = ifelse(
-      child18_died == 2 & is.na(ydead_survey), 
+      child18_died == 1 & is.na(ydead_survey), 
       NA, tot_child18_died_5y)
   ) %>% 
   group_by(ind_id) %>% 
@@ -156,8 +160,7 @@ bh_dat %>%
 
 ```{r before drop bh5 child_died, warning=FALSE}
 bh_dat %>% 
-  tabyl(bh5, child_died, show_na = T) %>% 
-  gt()
+  tabyl(bh5, child_died, show_na = T) 
 ```
 
 ```{r before drop tab child18_died}
@@ -202,8 +205,7 @@ bh_dat %>%
 
 ```{r bh5 child_died, warning=FALSE}
 bh_dat %>% 
-  tabyl(bh5, child_died, show_na = T) %>% 
-  gt()
+  tabyl(bh5, child_died, show_na = T) 
 ```
 
 ```{r tab child18_died}
